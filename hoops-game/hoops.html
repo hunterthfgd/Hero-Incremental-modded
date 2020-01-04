@@ -59,8 +59,6 @@ function stopDrag(e) {
 
 window.onload = function() {
 	canvas = document.getElementById("cv");
-	canvas.height = window.outerHeight
-	canvas.width = window.innerWidth
 	main();
 
 	document.onmousedown = startDrag;
@@ -233,6 +231,6 @@ var main = function() {
 	window.requestAnimationFrame(main);
 }
 </script>
-
-	<canvas onmousedown="startDrag()" onmouseup="stopDrag()" id="cv" style="vertical-alignment: middle"></canvas>
+	<canvas onmousedown="startDrag()" onmouseup="stopDrag()" 
+	height="750px" width="1500px" id="cv" style="vertical-alignment: middle"></canvas>
 </body>
