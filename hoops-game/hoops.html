@@ -59,7 +59,7 @@ function stopDrag(e) {
 
 window.onload = function() {
 	canvas = document.getElementById("cv");
-	canvas.height = window.innerHeight
+	canvas.height = window.outerHeight
 	canvas.width = window.innerWidth
 	main();
 
@@ -178,12 +178,12 @@ var main = function() {
 				scored = true
 			}
 			
-			if (bb.x < 0 || bb.x > window.innerWidth || bb.y > window.innerHeight) {
+			if (bb.x < 0 || bb.x > window.innerWidth || bb.y > window.outerHeight) {
 				if (scored) {
 					hoop_movement = patterns[Math.floor(Math.random()*4)]
 					console.log(hoop_movement)
 					hoop.x = Math.floor(Math.random()*window.innerWidth)
-					hoop.y = Math.floor(Math.random()*window.innerHeight)
+					hoop.y = Math.floor(Math.random()*window.outerHeight)
 					scored = false
 				} else {
 					score = 0
@@ -204,7 +204,7 @@ var main = function() {
 				i+=1
 				break
 			case 'vertical':
-				if (hoop.y < 100 || hoop.y > window.innerHeight) {
+				if (hoop.y < 100 || hoop.y > window.outerHeight) {
 					hoop.vel = -hoop.vel
 				}
 				hoop.y += hoop.vel
