@@ -13,9 +13,14 @@ if (!hiscore) {
 	hiscore = 0
 }
 function startDrag(e) {
-  // calculate event X, Y coordinates
-  startX = window.event.clientX;
-  startY = window.event.clientY;
+	// calculate event X, Y coordinates
+	startX = window.event.clientX;
+	startY = window.event.clientY;
+
+	if(!startX && !startY) {
+		startX = window.event.changedTouches[0].clientX
+		startY = window.event.changedTouches[0].clientY
+	}
 }
 
 function move(e) {
@@ -40,16 +45,35 @@ function move(e) {
 function stopDrag(e) {
 	var endX = window.event.clientX
 	var endY = window.event.clientY
+	if(!endX && !endY) {
+		endX = window.event.changedTouches[0].clientX
+		endY = window.event.changedTouches[0].clientY
+	}
+	
 	if (!launched) {
 		bb.velX = (startX - endX)
 		bb.velY = (startY - endY)
 	}
 	launched = true
 }
+
 window.onload = function() {
-  document.onmousedown = startDrag;
-  document.onmouseup = stopDrag;
+	canvas = document.getElementById("cv");
+	canvas.height = window.innerHeight
+	canvas.width = window.innerWidth
+	main();
+
+	document.onmousedown = startDrag;
+	document.onmouseup = stopDrag;
 }
+
+window.addEventListener('touchstart', function(e) {
+    startDrag(e)
+}, false);
+
+window.addEventListener('touchend', function(e) {
+    stopDrag(e)
+}, false);
 
 var then = Date.now(),
 	start
@@ -154,12 +178,12 @@ var main = function() {
 				scored = true
 			}
 			
-			if (bb.x < 0 || bb.x > 1500 || bb.y > 750) {
+			if (bb.x < 0 || bb.x > window.innerWidth || bb.y > window.innerHeight) {
 				if (scored) {
 					hoop_movement = patterns[Math.floor(Math.random()*4)]
 					console.log(hoop_movement)
-					hoop.x = Math.floor(Math.random()*700) + 500
-					hoop.y = Math.floor(Math.random()*400) + 250
+					hoop.x = Math.floor(Math.random()*window.innerWidth)
+					hoop.y = Math.floor(Math.random()*window.innerHeight)
 					scored = false
 				} else {
 					score = 0
@@ -180,13 +204,13 @@ var main = function() {
 				i+=1
 				break
 			case 'vertical':
-				if (hoop.y < 100 || hoop.y > 650) {
+				if (hoop.y < 100 || hoop.y > window.innerHeight) {
 					hoop.vel = -hoop.vel
 				}
 				hoop.y += hoop.vel
 				break
 			case 'horizontal':
-				if (hoop.x < 500 || hoop.x > 1200) {
+				if (hoop.x < 100 || hoop.x > window.innerWidth) {
 					hoop.vel = -hoop.vel
 				}
 				hoop.x += hoop.vel
@@ -208,13 +232,7 @@ var main = function() {
 	
 	window.requestAnimationFrame(main);
 }
-
-window.onload = function() {
-	canvas = document.getElementById("cv");
-	main();
-}
 </script>
 
-	<canvas onmousedown="startDrag()" onmouseup="stopDrag()" id="cv" 
-		height="750px" width="1500px" style="vertical-alignment: middle"></canvas>
+	<canvas onmousedown="startDrag()" onmouseup="stopDrag()" id="cv" style="vertical-alignment: middle"></canvas>
 </body>
