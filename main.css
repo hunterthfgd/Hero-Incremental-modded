@@ -123,5 +123,11 @@ html {
 	.pagination {
 		margin-right: 0px;
 	}
+	.nav {
+		font-size: 36px;
+	}
+	.pagination {
+		padding-bottom: 42px;
+	}
 }
 
