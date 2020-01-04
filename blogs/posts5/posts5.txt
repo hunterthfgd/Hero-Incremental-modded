@@ -1,0 +1,9 @@
+<a class="date" href="/blogs/posts5/posts5.html">12/18/2019</a><br>
+<div>
+This blog post is about Keras. It is a simple framework used to build neural networks. I used it to convert polar coordinates to cartesian coordinates as a demo. Machine learning algorithms use a method of adjusting weights called gradient descent until a local minimum is found. </div>
+<br>
+<div>
+I first built my model with 10 layers of 64 neurons each. I then generated a radius between 0 and 1000 and an angle between 0 and 2*pi, and converted them to cartesian coordinates for the training data. I had some trouble at first because Keras requires inputs between 0 and 1. I divided the radius and cartesian coordinates by 1000, and the angle by 10, then trained, and once the weights were done adjusting, I multiplied them back to their respective values. After 1000 training epochs, I found a loss of 0.00064 via the mean squared error. In terms of real errors, large numbers had errors typically within 3%. For small numbers, the percent error was much larger.
+</div>
+<br>
+<div>The code for this project can be found on my Github.</div>

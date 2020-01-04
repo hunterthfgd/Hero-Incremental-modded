@@ -1,0 +1,14 @@
+<a class="date" href="/blogs/posts4/posts4.html">12/16/2019</a><br>
+<div>
+A little project I wanted to work on for a while now finally came to life. With a MPU-9250 gyroscope attached to a raspberry pi, I floated the pi in some water. I made some waves and recorded the roll, something you'd do if the sensor was attached to a boat. Then, I took that data and fourier transformed it using the FFT library from scipy to find the frequencies. The fast fourier transform is a discrete algorithm for breaking down a signal into its constituent frequencies using the following equation
+</div>
+<div>
+\[x(t)=\sum_{k=0}^{N-1} \hat x_k e^{2\pi i\,f_k\,t}\]
+</div>
+<div>
+I had hoped it would catch waves I made, as well as secondary waves that spawned off the sides of the enclosure. However, only waves I made were recorded. As shown below, waves were recorded and a frequency of 1.88 waves per second was found. 
+</div>
+<div><image src="/images/transform.png"></div>
+<div>
+One problem I ran into when plotting the transformation was needing the samples taken per second. This is used to graph the delta-function at the correct frequency rather than at the number of samples due to the sampling frequency incorporating the correct units. Another issue was a large spike at 0 Hz. I found that this was the case because the mean of my data was not 0. 
+</div>

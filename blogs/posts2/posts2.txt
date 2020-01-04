@@ -1,0 +1,4 @@
+<a class="date" href="/blogs/posts2/posts2.html">12/10/2019</a><br>
+<div>
+Built a python server with custom GET and POST functions. It is used for storing blog posts and comments offline and submitting new posts via a text box on this site. In the future, only I will be able to access this blog submission box and there will be a space for user comments.
+</div>

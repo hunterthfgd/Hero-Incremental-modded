@@ -1,0 +1,12 @@
+<a class="date" href="/blogs/posts7/posts7.html">12/21/2019</a><br>
+<div>
+It's the weekend and rather than slack off, I decided to do a fun project. I used my skills from the previous two blogs and integrated machine learning with the MPU-9250 9DOF sensor. First, I used what amounts to a Keras template (the polar to rectangular program) to make a machine learning model that learns the direction of gravity from raw accelerometer data. I had already cooked up the direction of gravity using sines and cosines of the roll and pitch, and wanted to see if I could learn it without any calculations. Turns out, I can! The model did a good job of taking accelerometer data and determining the gravitational pull in xyz. 
+</div>
+<br>
+<div>
+My next project was to take accelerometer data (mainly gravity in this case) and spit out the the pitch and roll, to predict the orientation of the gyroscope. What I found was an extremely noisy orientation data because each prediction was just that: a prediction. The roll was graphed somewhat successfully, showing that the model did work. The yaw was predictably useless since gravity with respect to the gyroscope isn't dependent on yaw. The pitch data was almost all junk likely because it is tied to yaw (see previous post).
+</div>
+<br>
+<div>
+With a working model for predicting gravitational acceleration, and a semi working model loosely predicting the roll, I would say this was a semi successful Saturday. Machine learning predictions are supposed to be noisy and imperfect, that's why they're called predictions. Plotting such noisy data may have been silly, but it turned out to be insightful and genuinely interesting.
+</div>

@@ -1,0 +1,11 @@
+<a class="date" href="/blogs/posts3/posts3.html">12/14/2019</a><br>
+<div>
+I added comments to the blog. Each post has it's own page where users can add their names and comments, which will show up on page reload. The comments are stored in a file as json, which is a good solution for writing shorter code but a bad solution when it comes to having quotation marks and apostrophes in the comment. I previously had each comment in its own file, but opted to remove quotation marks and apostrophes and store in a single file.
+</div><br>
+<div>
+A small proof-of-concept project I worked on is a user sign up and login page. The user signs up with a username and password and the password is hashed before storing that data in a file. Upon logging in, I used the json web tokens library for python to generate a token and keep the user logged in. The token is used to access resources on the server.
+</div><br>
+<div>
+Another thing I wanted to share is the inverted pendulum program. I used a free program called Licecap to capture a .gif of a small graphic I made using graphics.py, which in turn uses the built in TKinter library. The program solves a differential equation for a pendulum on a moving platform, and using a set of eigenvalues reaches the solution where the pendulum is upright. Each set of positive eigenvalues will yield a new solution, some solving the system slowly and others quickly. Below is one solution I captured.
+</div><br>
+<div><image src="/images/pendulum.gif"></div>
