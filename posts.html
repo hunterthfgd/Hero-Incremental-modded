@@ -103,7 +103,7 @@
 					var post = '<a class="date" href="/blogs/posts' + total + '/posts' + total + '.html">' + date + '</a><br>\r\n' + body
 					
 					var request = new XMLHttpRequest()
-					request.open('POST', origin + 'makepost')
+					request.open('POST', origin + '/makepost')
 					request.send(post)
 				}
 			}
