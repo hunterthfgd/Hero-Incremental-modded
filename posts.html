@@ -43,7 +43,6 @@
 				response = JSON.parse(client.responseText)
 				total = response.total
 				
-				
 				var url = new URL(document.location)
 				var page = parseInt(url.searchParams.get("page"))
 				if(isNaN(page)) {
