@@ -1,0 +1,418 @@
+<body height="window.height" width="window.width">
+<script>
+
+var clickables = {}
+clickables["zone1"] = { left: 10, top: 10, height: 75, width: 75, action: function() {
+	currentStage = 1
+	hero.x = 350
+	hero.y = 600
+	enemies.splice(0, enemies.length)
+	spawnEnemies()
+}}
+showInventory = false
+clickables["inventory"] = { left: 10, top: 180, height: 14, width: 100, action: function() {
+	showInventory = true
+}}
+
+var species_tags = [ "kobold", "beast", "giant", "golem", "demon", "dragon" ]
+var species = {
+	"kobold": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	},
+	"beast": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	},
+	"giant": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	},
+	"golem": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	},
+	"demon": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	},
+	"dragon": {
+		symbol: "k",
+		health: 10,
+		attack: 5,
+		defence: 5,
+		reward: 1
+	}
+}
+
+var elements_tags = [ "crystal", "stone", "leaf" ]
+var elements = {
+	"crystal": {
+		color: "blue",
+		attack: 1.1,
+		defence: 1.0,
+		health: 1.0
+	},
+	"stone": {
+		color: "brown",
+		attack: 1.0,
+		defence: 1.1,
+		health: 1.0
+	},
+	"leaf": {
+		color: "green",
+		attack: 1.0,
+		defence: 1.0,
+		health: 1.1
+	}
+}
+
+var drops = {
+	"shortsword": {
+		attack: 2
+	},
+	"longsword": {
+		attack: 4
+	},
+	"greatsword": {
+		attack: 6
+	}
+}
+
+var hero = {
+	x: 350,
+	y: 600,
+	health: 100,
+	attack: 100,
+	defence: 10,
+	speed: 5,
+	weapon: ""
+}
+
+var enemies = []
+var inventory = []
+var messages = []
+var clear_messages = Date.now()/1000
+
+var currentZone = 1
+var highestZone = 1
+var currentStage = 1
+var crystal_store = 0
+var stone_store = 0
+var leaf_store = 0
+
+var then = Date.now(),
+	start
+
+function spawnEnemies() {
+	for(i=0; i<currentStage; i++){
+		enemies.push({
+			species: species_tags[currentZone-1],
+			element: elements_tags[Math.round(2*Math.random())],
+			x: 100 + 500*Math.random(),
+			y: 100 + 200*Math.random(),
+			trajectory: {
+				angle: 2*Math.PI*Math.random(),
+				turning: 0
+			},
+			health: species[species_tags[currentZone-1]].health
+		})
+	}
+}
+
+var main = function() {
+	function createCanvas() {
+		function drawHero(hero) {
+			ctx.save()
+
+			ctx.fillStyle = "red"
+			ctx.font = "16px Arial"
+			ctx.fillText("H", hero.x, hero.y)
+
+			ctx.restore()
+		}
+		function drawEnemy(object) {
+			ctx.save()
+
+			enemy_element = object["element"]
+			enemy_species = object["species"]
+			ctx.fillStyle = elements[enemy_element].color
+			ctx.font = "16px Arial"
+			ctx.fillText(species[enemy_species].symbol, object.x, object.y)
+
+			if(object.health < species[enemy_species].health) {
+				ratio = object.health/species[enemy_species].health
+				ctx.fillStyle = "red"
+				ctx.fillRect(object.x - 40, object.y - 30, 80*ratio, 8)
+			}
+
+			ctx.restore()
+		}
+		function drawInfo() {
+			ctx.save()
+
+			for(i=0; i<highestZone; i++) {
+				ctx.strokeRect(10 + 90*i, 10, 75, 75)
+				ctx.font = "14px Arial"
+				ctx.fillText(species_tags[i], 25 + 90*i, 50)
+				if(i == currentZone - 1) {
+					ctx.fillText("Stage " + currentStage, 25 + 90*i, 70)
+				}
+			}
+			ctx.fillText("Health " + Math.round(hero.health), 10, 100)
+			ctx.fillStyle = "blue"
+			ctx.fillText("Crystal " + crystal_store, 10, 120)
+			ctx.fillStyle = "brown"
+			ctx.fillText("Stone " + stone_store, 10, 140)
+			ctx.fillStyle = "green"
+			ctx.fillText("Leaf " + leaf_store, 10, 160)
+			ctx.fillStyle = "black"
+			ctx.fillText("Inventory", 10, 180)
+
+			ctx.font = "10px Arial"
+			if(messages.length > 0) {
+				for(i=messages.length - 1; i>=0; i--) {
+					ctx.fillText(messages[i], 500, 675-(messages.length-1-i)*10)
+				}
+				if(Date.now()/1000 > clear_messages) {
+					messages.splice(0, messages.length)
+				}
+			}
+
+			ctx.restore()
+		}
+		function drawInventory() {
+			ctx.save()
+
+			clickables = {}
+			ctx.font = "14px Arial"
+			ctx.fillText("Close Inventory", 10, 10)
+			clickables["close"] = {left: 8, top: 10, height: 14, width: 110, action: function() {
+				clickables = {}
+				for(i=1; i<=highestZone; i++){
+					clickables["zone" + i] = { left: 10 + 90*(i-1), top: 10, height: 75, width: 75, action: function() {
+						currentStage = 1
+						hero.x = 350
+						hero.y = 600
+						enemies.splice(0, enemies.length)
+						spawnEnemies()
+					}}
+				}
+				showInventory = false
+				clickables["inventory"] = { left: 10, top: 180, height: 14, width: 65, action: function() {
+					showInventory = true
+				}}
+			}}
+			item_count = {}
+			weapon_equipped = ""
+			for(i=0; i<inventory.length; i++){
+				if(!item_count[inventory[i]]){
+					item_count[inventory[i]] = 1
+				} else {
+					item_count[inventory[i]] += 1
+				}
+			}
+			i = 0
+			for(item in item_count){
+				var equipped_flag = ""
+				if(item == hero.weapon) {
+					equipped_flag = " Equipped"
+				}
+				ctx.font = "16px Arial"
+				ctx.fillText("Equip " + item + " Attack " + drops[item].attack + " Number " + item_count[item] + equipped_flag, 10, 50 + 20*i)
+				clickables[item] = { left: 10, top: 46 + 20*i, height: 16, width: 50, action: function(tag) {
+					hero.weapon = tag
+				}}
+				ctx.moveTo(10, 55 + 20*i)
+				ctx.lineTo(400, 55 + 20*i)
+				ctx.lineWidth = 1
+				ctx.stroke()
+				i += 1
+			}
+
+			ctx.restore()
+		}
+
+		var ctx = this.canvas.getContext("2d")
+		ctx.clearRect(0, 0, 700, 700)
+
+		if(showInventory){
+			drawInventory()
+		} else {
+			drawInfo()
+			drawHero(hero)
+			for(i=0; i<enemies.length; i++) {
+				drawEnemy(enemies[i])
+			}
+		}
+	}
+
+	function update(time) {
+		for(i=0; i<enemies.length; i++) {
+			var xdif = Math.abs(enemies[i].x - hero.x)
+			var ydif = Math.abs(enemies[i].y - hero.y)
+			var dist = Math.sqrt(xdif*xdif + ydif*ydif)
+
+			if(dist > 500) {
+				enemies[i].trajectory.turning += (.5 - Math.random())/200
+				if(Math.abs(enemies[i].trajectory.turning) > .02) {
+					enemies[i].trajectory.turning = enemies[i].trajectory.turning/2
+				}
+				enemies[i].trajectory.angle += enemies[i].trajectory.turning
+
+				if(enemies[i].x < 25 || enemies[i].x > 675) {
+					enemies[i].x = 25
+					enemies[i].trajectory.angle += Math.PI
+				}
+				if(enemies[i].y < 25 || enemies[i].y > 675) {
+					enemies[i].y = 25
+					enemies[i].trajectory.angle += Math.PI
+				}
+
+				enemies[i].x += 2*Math.cos(enemies[i].trajectory.angle)/10
+				enemies[i].y += 2*Math.sin(enemies[i].trajectory.angle)/10
+			} else {
+				angle = Math.atan2(ydif, xdif)
+				movex = Math.cos(angle)
+				movey = Math.sin(angle)
+				if(dist > 25) {
+					enemies[i].x += movex
+					enemies[i].y += movey
+				} else {
+					damage = species[enemies[i].species].attack
+					damage = damage/hero.defence
+					hero.health -= damage
+
+					if(hero.health <= 0) {
+						currentStage = 1
+						hero.health = 100
+						hero.x = 350
+						hero.y = 600
+
+						enemies.splice(0, enemies.length)
+						spawnEnemies()
+					}
+				}
+			}
+		}
+
+		var closest_dist = 2000
+		var closest_enemy = 0
+		for(i=0; i<enemies.length; i++){
+			xdif = Math.abs(enemies[i].x - hero.x)
+			ydif = Math.abs(enemies[i].y - hero.y)
+			dist = Math.sqrt(xdif*xdif + ydif*ydif)
+			if(dist < closest_dist) {
+				closest_dist = dist
+				closest_enemy = i
+			}
+		}
+		xdif = enemies[closest_enemy].x - hero.x
+		ydif = enemies[closest_enemy].y - hero.y
+
+		angle = Math.atan2(ydif, xdif)
+		movex = hero.speed*Math.cos(angle)
+		movey = hero.speed*Math.sin(angle)
+		if (closest_dist > 25) {
+			hero.x += movex
+			hero.y += movey
+		} else {
+			damage = hero.attack
+			if(hero.weapon) {
+				damage += drops[hero.weapon].attack
+			}
+			damage = damage/species[enemies[closest_enemy].species].defence
+			enemies[closest_enemy].health -= damage/100
+			if(enemies[closest_enemy].health <= 0) {
+				if(enemies[closest_enemy].element == "crystal") {
+					crystal_store += species[enemies[closest_enemy].species].reward
+				} else if(enemies[closest_enemy].element == "stone") {
+					stone_store += species[enemies[closest_enemy].species].reward
+				} else if(enemies[closest_enemy].element == "leaf") {
+					leaf_store += species[enemies[closest_enemy].species].reward
+				}
+				var droproll = 1000*Math.random()
+				if(droproll < 50) {
+					inventory.push("greatsword")
+					messages.push(enemies[closest_enemy].species + " dropped a greatsword")
+					clear_messages = Date.now()/1000 + 3
+				} else if(droproll < 150) {
+					inventory.push("longsword")
+					messages.push(enemies[closest_enemy].species + " dropped a longsword")
+					clear_messages = Date.now()/1000 + 3
+				} else if(droproll < 350) {
+					inventory.push("shortsword")
+					messages.push(enemies[closest_enemy].species + " dropped a shortsword")
+					clear_messages = Date.now()/1000 + 3
+				}
+				enemies.splice(closest_enemy, 1)
+
+				if(enemies.length == 0) {
+					currentStage += 1
+					if(currentStage == 10) {
+						highestZone += 1
+						clickables["zone" + highestZone] = { left: 100 + 90*(highestZone-1), top: 10, height: 75, width: 75, action: function() {
+							currentZone = highestZone
+							hero.x = 350
+							hero.y = 600
+							enemies.splice(0, enemies.length)
+							spawnEnemies()
+						}}
+					}
+					spawnEnemies()
+					hero.x = 350
+					hero.y = 600
+				}
+			}
+		}
+	}
+
+	var now = Date.now(),
+		delta = (now - then)/1000
+
+	createCanvas()
+	if(!showInventory){
+		update(delta)
+	}
+
+	then = now
+
+	window.requestAnimationFrame(main)
+}
+
+window.onload = function() {
+	document.getElementById("cv").addEventListener("click", function(event) {
+		var x = event.pageX,
+			y = event.pageY
+			console.log(x, y)
+			for(tag in clickables) {
+				if(x > clickables[tag].left && x < clickables[tag].left + clickables[tag].width
+					&& y > clickables[tag].top && y < clickables[tag].top + clickables[tag].height) {
+					clickables[tag].action(tag)
+				}
+			}
+	})
+
+	canvas = document.getElementById("cv");
+	spawnEnemies()
+	main();
+}
+
+</script>
+	<canvas height="700px" width="700px" id="cv"></canvas>
+</body>
