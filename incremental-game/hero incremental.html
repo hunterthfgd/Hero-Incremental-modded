@@ -1,0 +1,1166 @@
+<body height="window.height" width="window.width">
+<script>
+
+var clickables = {}
+clickables["zone1"] = { left: 10, top: 10, height: 75, width: 75, action: function() {
+	loadZone(1)
+}}
+showInventory = false
+clickables["inventory"] = { left: 10, top: 180 - 14, height: 14, width: 100, action: function() {
+	showInventory = true
+}}
+showBuildings = false
+clickables["buildings"] = { left: 10, top: 200 - 14, height: 14, width: 100, action: function() {
+	showBuildings = true
+}}
+showStats = false
+clickables["stats"] = { left: 10, top: 220 - 14, height: 14, width: 60, action: function() {
+	showStats = true
+}}
+
+var species_tags = [ "kobold", "beast", "giant", "golem", "demon", "dragon" ]
+var species = {
+	"kobold": {
+		symbol: "k",
+		health: 10,
+		attack: 2,
+		defence: 5,
+		reward: 1
+	},
+	"beast": {
+		symbol: "b",
+		health: 20,
+		attack: 10,
+		defence: 10,
+		reward: 5
+	},
+	"giant": {
+		symbol: "gi",
+		health: 40,
+		attack: 20,
+		defence: 20,
+		reward: 10
+	},
+	"golem": {
+		symbol: "go",
+		health: 80,
+		attack: 40,
+		defence: 40,
+		reward: 20
+	},
+	"demon": {
+		symbol: "de",
+		health: 160,
+		attack: 80,
+		defence: 80,
+		reward: 40
+	},
+	"dragon": {
+		symbol: "dr",
+		health: 320,
+		attack: 160,
+		defence: 160,
+		reward: 100
+	}
+}
+
+var elements_tags = [ "crystal", "stone", "leaf" ]
+var elements = {
+	"crystal": {
+		color: "blue",
+		attack: 1.1,
+		defence: 1.0,
+		health: 1.0
+	},
+	"stone": {
+		color: "brown",
+		attack: 1.0,
+		defence: 1.1,
+		health: 1.0
+	},
+	"leaf": {
+		color: "green",
+		attack: 1.0,
+		defence: 1.0,
+		health: 1.1
+	}
+}
+
+var weapon_tags = ["shortsword", "shortbow", "staff",
+										"longsword", "longbow", "battlestaff",
+										"greatsword", "greatbow", "tome"]
+var armor_tags = ["leather helm", "leather chaps", "leather torso",
+									"med helm", "chainskirt", "chain torso",
+									"full helm", "platelegs", "platebody",
+									"wooden ring", "iron ring", "gold ring"]
+var drops = {
+	"shortsword": {
+		attack: 2,
+		range: 25,
+		cooldown: .5,
+		type: "sword"
+	},
+	"longsword": {
+		attack: 4,
+		range: 30,
+		cooldown: .5,
+		type: "sword"
+	},
+	"greatsword": {
+		attack: 8,
+		range: 35,
+		cooldown: .5,
+		type: "sword"
+	},
+	"shortbow": {
+		attack: .5,
+		range: 100,
+		cooldown: .5,
+		type: "bow"
+	},
+	"longbow": {
+		attack: 5,
+		range: 125,
+		cooldown: 1,
+		type: "bow"
+	},
+	"greatbow": {
+		attack: 20,
+		range: 175,
+		cooldown: 1.5,
+		type: "bow"
+	},
+	"staff": {
+		attack: 5,
+		range: 50,
+		cooldown: 1,
+		type: "magic"
+	},
+	"battlestaff": {
+		attack: 20,
+		range: 75,
+		cooldown: 1,
+		type: "magic"
+	},
+	"tome": {
+		attack: 20,
+		range: 75,
+		cooldown: .5,
+		type: "magic"
+	},
+	"leather helm": {
+		defence: 5,
+		type: "helmet"
+	},
+	"med helm": {
+		defence: 10,
+		type: "helmet"
+	},
+	"full helm": {
+		defence: 20,
+		type: "helmet"
+	},
+	"leather torso": {
+		defence: 15,
+		type: "torso"
+	},
+	"chain torso": {
+		defence: 20,
+		type: "torso"
+	},
+	"platebody": {
+		defence: 40,
+		type: "torso"
+	},
+	"leather chaps": {
+		defence: 10,
+		type: "legs"
+	},
+	"chainskirt": {
+		defence: 15,
+		type: "legs"
+	},
+	"platelegs": {
+		defence: 20,
+		type: "legs"
+	}
+}
+
+var attributes = {
+	" of spite": {
+		attack: 2
+	},
+	" of rage": {
+		attack: 4
+	},
+	" of fury": {
+		attack: 6
+	},
+	" of will": {
+		defence: 2
+	},
+	" of protection": {
+		defence: 4
+	},
+	" of resistance": {
+		defence: 6
+	}
+}
+
+var bolt = {
+	x: undefined,
+	y: undefined,
+	targetid: undefined,
+	angle: 0,
+	reset: function() {
+		bolt.x = undefined
+		bolt.y = undefined
+		bolt.targetid = undefined
+		boltFired = false
+	}
+}
+
+var team = [{
+	name: "hero",
+	x: 350,
+	y: 600,
+	health: 100,
+	attack: 2,
+	defence: 10,
+	speed: 2,
+	cooldown: Date.now()/1000,
+	weapon: "hands",
+	helmet: "",
+	torso: "",
+	legs: ""
+}]
+
+var inventory = {
+	"hands": {
+		attack: 2,
+		range: 25,
+		cooldown: 1,
+		type: "sword"
+	}
+}
+
+var rebirth = {
+	"hero": {
+		level: 0,
+		cost: 10
+	},
+	"ally": {
+		level: 0,
+		cost: 10
+	},
+	"equipment": {
+		level: 0,
+		cost: 10
+	}
+}
+
+var enemies = []
+var messages = []
+var inventoryLoaded = false
+var buildingsLoaded = false
+var statsLoaded = false
+var boltFired = false
+
+var rebirth_points = 0
+var highestStages = [ 1, 0, 0, 0, 0, 0 ]
+
+var currentZone = 1,
+	highestZone = 1,
+	currentStage = 1
+var crystal_store = 0,
+	stone_store = 0,
+	leaf_store = 0
+var huts = 0,
+	huts_filled = 0
+
+var then = Date.now(),
+	start
+
+function spawnEnemies() {
+	enemies = []
+	for(i=0; i<currentStage; i++){
+		enemies.push({
+			species: species_tags[currentZone-1],
+			element: elements_tags[Math.floor(3*Math.random())],
+			x: 100 + 500*Math.random(),
+			y: 100 + 200*Math.random(),
+			trajectory: {
+				angle: 2*Math.PI*Math.random(),
+				turning: 0
+			},
+			cooldown: Date.now()/1000,
+			aggro: false,
+			health: species[species_tags[currentZone-1]].health
+		})
+	}
+}
+
+function loadZone(zone) {
+	currentZone = zone
+	currentStage = 1
+	team[0].x = 350
+	team[0].y = 600
+
+	n = 0
+	for(i=1; i<team.length; i++) {
+		team[i].x = 350 + 50*Math.cos(n*Math.PI)
+		team[i].y = 600 + 25*Math.ceil(n/2)
+	}
+
+	bolt.reset()
+	enemies.splice(0, enemies.length)
+	spawnEnemies()
+}
+
+var main = function() {
+	function createCanvas() {
+		function drawHero(hero) {
+			ctx.fillStyle = "red"
+			ctx.font = "16px Arial"
+			ctx.fillText("H", team[0].x, team[0].y)
+		}
+
+		function drawTeam(team) {
+			for(i=1; i<team.length; i++) {
+				ctx.fillStyle = "red"
+				ctx.font = "16px Arial"
+				ctx.fillText(species[team[i].name].symbol, team[i].x, team[i].y)
+
+				if(team[i].health < species[team[i]["name"]].health) {
+					ratio = team[i].health/species[team[i]["name"]].health
+					ctx.fillStyle = "black"
+					ctx.strokeRect(team[i].x - 40, team[i].y - 30, 80, 8)
+					ctx.fillStyle = "blue"
+					ctx.fillRect(team[i].x - 40, team[i].y - 30, 80*ratio, 8)
+				}
+			}
+		}
+
+		function setMainScreenClickables() {
+			clickables = {}
+			for(ii=1; ii<=highestZone; ii++){
+				clickables["zone" + ii] = { left: 10 + 90*(ii-1), top: 10, height: 75, width: 75, action: function() {
+					loadZone(ii)
+				}}
+			}
+			showInventory = false
+			showBuildings = false
+			showStats = false
+			inventoryLoaded = false
+			buildingsLoaded = false
+			statsLoaded = false
+			clickables["inventory"] = { left: 10, top: 180 - 14, height: 14, width: 65, action: function() {
+				showInventory = true
+			}}
+			clickables["buildings"] = { left: 10, top: 200 - 14, height: 14, width: 100, action: function() {
+				showBuildings = true
+			}}
+			clickables["stats"] = { left: 10, top: 220 - 14, height: 14, width: 60, action: function() {
+				showStats = true
+			}}
+		}
+
+		function drawEnemy(object) {
+			enemy_element = object["element"]
+			enemy_species = object["species"]
+			ctx.fillStyle = elements[enemy_element].color
+			ctx.font = "16px Arial"
+			ctx.fillText(species[enemy_species].symbol, object.x, object.y)
+
+			if(object.health < species[enemy_species].health) {
+				ratio = object.health/species[enemy_species].health
+				ctx.fillStyle = "red"
+				ctx.fillRect(object.x - 40, object.y - 30, 80*ratio, 8)
+				ctx.strokeRect(object.x - 40, object.y - 30, 80, 8)
+			}
+		}
+
+		function drawInfo() {
+			for(i=0; i<highestZone; i++) {
+				ctx.font = "14px Arial"
+				ctx.fillStyle = "black"
+				ctx.lineWidth = 2
+				ctx.strokeRect(10 + 90*i, 10, 75, 75)
+				ctx.fillText(species_tags[i], 25 + 90*i, 50)
+				if(i == currentZone - 1) {
+					ctx.fillText("Stage " + currentStage, 25 + 90*i, 70)
+				}
+			}
+
+			ctx.fillText("Health " + Math.ceil(team[0].health), 10, 100)
+			ctx.fillStyle = "blue"
+			ctx.fillText("Crystal " + crystal_store, 10, 120)
+			ctx.fillStyle = "brown"
+			ctx.fillText("Stone " + stone_store, 10, 140)
+			ctx.fillStyle = "green"
+			ctx.fillText("Leaf " + leaf_store, 10, 160)
+			ctx.fillStyle = "black"
+			ctx.fillText("Inventory", 10, 180)
+			ctx.fillText("Buildings", 10, 200)
+			ctx.fillText("Stats", 10, 220)
+
+			ctx.font = "10px Arial"
+			if(messages.length > 0) {
+				for(i=messages.length - 1; i>=0; i--) {
+					ctx.fillText(messages[i]["text"], 500, 675-(messages.length-1-i)*10)
+
+					if(Date.now()/1000 > messages[i]["timeout"]) {
+						messages.splice(i, 1)
+					}
+				}
+			}
+		}
+
+		function drawStats() {
+			if (!statsLoaded) {
+				ctx.clearRect(0, 0, 800, 800)
+				ctx.font = "14px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Close Stats", 10, 10)
+
+				clickables = {}
+				clickables["close"] = {left: 10, top: 10 - 14, height: 14, width: 110, action: function() {
+					setMainScreenClickables()
+				}}
+
+				ctx.font = "16px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Base Attack: " + team[0].attack, 10, 50)
+				ctx.fillText("Base Defence: " + team[0].defence, 10, 70)
+				ctx.fillText("Base Speed: " + team[0].speed, 10, 90)
+
+				ctx.fillText("Rebirth Points: " + rebirth_points, 10, 150)
+				ctx.fillText("+ Hero Level: " + rebirth["hero"].level + " Cost: " + rebirth["hero"].cost, 10, 170)
+				ctx.fillText("+ Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 10, 190)
+				ctx.fillText("+ Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 10, 210)
+
+				clickables["hero_level"] = {left: 10, top: 170 - 16, height: 16, width: 10, action: function() {
+					if(rebirth_points >= rebirth["hero"].cost) {
+						rebirth_points -= rebirth["hero"].cost
+						rebirth["hero"].cost = 2*rebirth["hero"].cost
+						rebirth["hero"].level += 1
+
+						team[0].attack += 1
+						team[0].defence += 5
+						team[0].speed += .5
+
+						highestZone = 1
+						currentZone = 1
+						currentStage = 1
+						highestStages = [ 1, 0, 0, 0, 0, 0 ]
+						inventory = {
+							"hands": {
+								attack: 2,
+								range: 25,
+								cooldown: 1,
+								type: "sword"
+							}
+						}
+						team = [{
+							name: "hero",
+							x: 350,
+							y: 600,
+							health: 100,
+							attack: 2,
+							defence: 10,
+							speed: 2,
+							cooldown: Date.now()/1000,
+							weapon: "hands",
+							helmet: "",
+							torso: "",
+							legs: ""
+						}]
+						spawnEnemies()
+
+						statsLoaded = false
+						drawStats()
+					}
+				}}
+				clickables["ally_level"] = {left: 10, top: 190 - 16, height: 16, width: 10, action: function() {
+					if(rebirth_points >= rebirth["ally"].cost) {
+						rebirth_points -= rebirth["ally"].cost
+						rebirth["ally"].cost = 2*rebirth["ally"].cost
+						rebirth["ally"].level += 1
+
+						highestZone = 1
+						currentZone = 1
+						currentStage = 1
+						inventory = {
+							"hands": {
+								attack: 2,
+								range: 25,
+								cooldown: 1,
+								type: "sword"
+							}
+						}
+						highestStages = [ 1, 0, 0, 0, 0, 0 ]
+						team = [{
+							name: "hero",
+							x: 350,
+							y: 600,
+							health: 100,
+							attack: 2,
+							defence: 10,
+							speed: 2,
+							cooldown: Date.now()/1000,
+							weapon: "hands",
+							helmet: "",
+							torso: "",
+							legs: ""
+						}]
+						spawnEnemies()
+
+						statsLoaded = false
+						drawStats()
+					}
+				}}
+				clickables["equipment_level"] = {left: 10, top: 210 - 16, height: 16, width: 10, action: function() {
+					if(rebirth_points >= rebirth["equipment"].cost) {
+						rebirth_points -= rebirth["equipment"].cost
+						rebirth["equipment"].cost = 2*rebirth["equipment"].cost
+						rebirth["equipment"].level += 1
+
+						highestZone = 1
+						currentZone = 1
+						currentStage = 1
+						inventory = {
+							"hands": {
+								attack: 2,
+								range: 25,
+								cooldown: 1,
+								type: "sword"
+							}
+						}
+						highestStages = [ 1, 0, 0, 0, 0, 0 ]
+						team = [{
+							name: "hero",
+							x: 350,
+							y: 600,
+							health: 100,
+							attack: 2,
+							defence: 10,
+							speed: 2,
+							cooldown: Date.now()/1000,
+							weapon: "hands",
+							helmet: "",
+							torso: "",
+							legs: ""
+						}]
+						spawnEnemies()
+
+						statsLoaded = false
+						drawStats()
+					}
+				}}
+			}
+			statsLoaded = true
+		}
+
+		function drawInventory() {
+			if (!inventoryLoaded){
+				ctx.clearRect(0, 0, 800, 800)
+				ctx.font = "14px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Close Inventory", 10, 10)
+
+				clickables = {}
+				clickables["close"] = {left: 10, top: 10 - 14, height: 14, width: 110, action: function() {
+					setMainScreenClickables()
+				}}
+
+				ctx.strokeRect(10, 50, 300, 30)
+				ctx.font = "16px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Weapons", 125, 73)
+				ctx.strokeRect(10, 390, 400, 30)
+				ctx.fillText("Armor", 190, 413)
+
+				inventory_tags = Object.keys(inventory)
+				for(i=0; i<9; i++) {
+					ctx.strokeRect(10 + 100*(i%3), 80 + 100*Math.floor(i/3), 100, 100)
+					if (inventory_tags.includes(weapon_tags[i])) {
+						weapon_details = inventory[weapon_tags[i]]
+						ctx.font = "16px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText(weapon_tags[i], 12 + 100*(i%3), 96 + 100*Math.floor(i/3))
+						ctx.font = "12px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText("Attack: " + weapon_details.attack.toFixed(2), 12 + 100*(i%3), 110 + 100*Math.floor(i/3))
+						ctx.fillText("Speed: " + 1/weapon_details.cooldown.toFixed(2), 12 + 100*(i%3), 122 + 100*Math.floor(i/3))
+						ctx.fillText("Owned: " + weapon_details.owned, 12 + 100*(i%3), 134 + 100*Math.floor(i/3))
+						if(team[0].weapon == weapon_tags[i]) {
+							ctx.fillText("Unequip", 12 + 100*(i%3), 176 + 100*Math.floor(i/3))
+						} else {
+							ctx.fillText("Equip", 12 + 100*(i%3), 176 + 100*Math.floor(i/3))
+						}
+						ctx.fillText("Craft", 80 + 100*(i%3), 176 + 100*Math.floor(i/3))
+
+						clickables["equip " + weapon_tags[i]] = { left: 12+100*(i%3), top: 176 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+							var i = weapon_tags.indexOf(item)
+							var item_stats = inventory[item]
+							var old_item = team[0].weapon
+							team[0].weapon = item
+
+							ctx.clearRect(12 + 100*(i%3), 82 + 100*Math.floor(i/3), 96, 96)
+							ctx.font = "16px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText(weapon_tags[i], 12 + 100*(i%3), 96 + 100*Math.floor(i/3))
+							ctx.font = "12px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText("Attack: " + item_stats.attack.toFixed(2), 12 + 100*(i%3), 110 + 100*Math.floor(i/3))
+							ctx.fillText("Speed: " + 1/item_stats.cooldown.toFixed(2), 12 + 100*(i%3), 122 + 100*Math.floor(i/3))
+							ctx.fillText("Owned: " + item_stats.owned, 12 + 100*(i%3), 134 + 100*Math.floor(i/3))
+							ctx.fillText("Unequip", 12 + 100*(i%3), 176 + 100*Math.floor(i/3))
+							ctx.fillText("Craft", 80 + 100*(i%3), 176 + 100*Math.floor(i/3))
+
+							if(old_item != "hands" && old_item != item) {
+								var j = weapon_tags.indexOf(old_item)
+								item_stats = inventory[old_item]
+								ctx.clearRect(12 + 100*(j%3), 82 + 100*Math.floor(j/3), 96, 96)
+								ctx.font = "16px Arial"
+								ctx.fillStyle = "black"
+								ctx.fillText(weapon_tags[j], 12 + 100*(j%3), 96 + 100*Math.floor(j/3))
+								ctx.font = "12px Arial"
+								ctx.fillStyle = "black"
+								ctx.fillText("Attack: " + item_stats.attack.toFixed(2), 12 + 100*(j%3), 110 + 100*Math.floor(j/3))
+								ctx.fillText("Speed: " + 1/item_stats.cooldown.toFixed(2), 12 + 100*(j%3), 122 + 100*Math.floor(j/3))
+								ctx.fillText("Owned: " + item_stats.owned, 12 + 100*(j%3), 134 + 100*Math.floor(j/3))
+								ctx.fillText("Equip", 12 + 100*(j%3), 176 + 100*Math.floor(j/3))
+								ctx.fillText("Craft", 80 + 100*(j%3), 176 + 100*Math.floor(j/3))
+							}
+						}}
+						clickables["craft " + weapon_tags[i]] = { left: 80+100*(i%3), top: 176 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+							var i = weapon_tags.indexOf(item)
+							var num_crafted = inventory[item].owned - 1
+							if (num_crafted > 0) {
+								inventory[item].attack += drops[item].attack*((1.01)**num_crafted - 1)
+								inventory[item].cooldown -= drops[item].cooldown*((1.001)**num_crafted - 1)
+								inventory[item].owned = 1
+							}
+							ctx.clearRect(12 + 100*(i%3), 82 + 100*Math.floor(i/3), 96, 96)
+
+							ctx.font = "16px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText(weapon_tags[i], 12 + 100*(i%3), 96 + 100*Math.floor(i/3))
+							ctx.font = "12px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText("Attack: " + inventory[item].attack.toFixed(2), 12 + 100*(i%3), 110 + 100*Math.floor(i/3))
+							ctx.fillText("Speed: " + 1/inventory[item].cooldown.toFixed(2), 12 + 100*(i%3), 122 + 100*Math.floor(i/3))
+							ctx.fillText("Owned: 1", 12 + 100*(i%3), 134 + 100*Math.floor(i/3))
+							if(team[0].weapon == item) {
+								ctx.fillText("Unequip", 12 + 100*(i%3), 176 + 100*Math.floor(i/3))
+							} else {
+								ctx.fillText("Equip", 12 + 100*(i%3), 176 + 100*Math.floor(i/3))
+							}
+							ctx.fillText("Craft", 80 + 100*(i%3), 176 + 100*Math.floor(i/3))
+						}}
+					} else {
+						ctx.font = "64px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText("?", 60 + 100*(i%3) - 16, 130 + 100*Math.floor(i/3) + 24)
+					}
+				}
+				for(i=0; i<12; i++) {
+					ctx.strokeRect(10 + 100*(i%4), 420 + 100*Math.floor(i/4), 100, 100)
+					if (inventory_tags.includes(armor_tags[i])) {
+						armor_details = inventory[armor_tags[i]]
+						ctx.font = "16px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText(armor_tags[i], 12 + 100*(i%4), 436 + 100*Math.floor(i/4))
+						ctx.font = "12px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText("Defence: " + armor_details.defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
+						ctx.fillText("Owned: " + armor_details.owned, 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
+						if(team[0].helmet == armor_tags[i] || team[0].torso == armor_tags[i] || team[0].legs == armor_tags[i]) {
+							ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+						} else {
+							ctx.fillText("Equip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+						}
+						ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+
+						clickables["equip " + armor_tags[i]] = { left: 12+100*(i%3), top: 516 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+							var i = armor_tags.indexOf(item)
+							var item_stats = inventory[item]
+							if (item_stats.type == 'helmet') {
+								var old_item = team[0].helmet
+								team[0].helmet = item
+							} else if (item_stats.type == 'torso') {
+								var old_item = team[0].torso
+								team[0].torso = item
+							} else {
+								var old_item = team[0].legs
+								team[0].legs = item
+							}
+							ctx.clearRect(12 + 100*(i%3), 422 + 100*Math.floor(i/3), 96, 96)
+							ctx.font = "16px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText(armor_tags[i], 12 + 100*(i%3), 436 + 100*Math.floor(i/3))
+							ctx.font = "12px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
+							ctx.fillText("Owned: " + inventory[item].owned, 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
+							ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+
+							if(old_item && old_item != item) {
+								var j = armor_tags.indexOf(old_item)
+								item_stats = inventory[old_item]
+								ctx.clearRect(12 + 100*(j%3), 422 + 100*Math.floor(j/3), 96, 96)
+								ctx.font = "16px Arial"
+								ctx.fillStyle = "black"
+								ctx.fillText(armor_tags[j], 12 + 100*(j%3), 436 + 100*Math.floor(j/3))
+								ctx.font = "12px Arial"
+								ctx.fillStyle = "black"
+								ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(j%3), 450 + 100*Math.floor(j/3))
+								ctx.fillText("Owned: " + item_stats.owned, 12 + 100*(j%3), 462 + 100*Math.floor(j/3))
+								ctx.fillText("Equip", 12 + 100*(j%3), 516 + 100*Math.floor(j/3))
+								ctx.fillText("Craft", 80 + 100*(j%3), 516 + 100*Math.floor(j/3))
+							}
+						}}
+						clickables["craft " + armor_tags[i]] = { left: 80+100*(i%3), top: 516 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+							var i = armor_tags.indexOf(item)
+							var num_crafted = inventory[item].owned - 1
+							if (num_crafted > 0) {
+								inventory[item].defence += drops[item].defence*((1.01)**num_crafted - 1)
+								inventory[item].owned = 1
+							}
+							ctx.clearRect(12 + 100*(i%3), 422 + 100*Math.floor(i/3), 96, 96)
+
+							ctx.font = "16px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText(armor_tags[i], 12 + 100*(i%3), 436 + 100*Math.floor(i/3))
+							ctx.font = "12px Arial"
+							ctx.fillStyle = "black"
+							ctx.fillText("Defence: " + inventory[item].defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
+							ctx.fillText("Owned: 1", 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
+							if(team[0].helmet == item || team[0].torso == item || team[0].legs == item) {
+								ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							} else {
+								ctx.fillText("Equip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							}
+							ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+						}}
+					} else {
+						ctx.font = "64px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText("?", 60 + 100*(i%4) - 16, 470 + 100*Math.floor(i/4) + 24)
+					}
+				}
+				inventoryLoaded = true
+			}
+		}
+
+		function drawBuildingsScreen() {
+			if(!buildingsLoaded) {
+				ctx.clearRect(0, 0, 800, 800)
+				ctx.font = "14px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Close ", 10, 10)
+				ctx.fillText("Crystal: " + crystal_store + " Stone: " + stone_store + " Leaf: " + leaf_store, 10, 25)
+
+				clickables = {}
+				clickables["close"] = {left: 10, top: 10 - 14, height: 14, width: 40, action: function() {
+					setMainScreenClickables()
+				}}
+
+				ctx.font = "16px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText("Hut - Cost: " + 10**(huts + 1) + " Stone", 10, 50)
+				ctx.font = "12px Arial"
+				ctx.fillText("Recruits a kobold", 25, 64)
+				clickables["hut"] = { left: 10, top: 50 - 16, height: 16, width: 25, action: function() {
+					if(stone_store >= 10**(huts + 1)) {
+						stone_store -= 10**(huts + 1)
+						huts += 1
+
+						ctx.clearRect(0, 10, 700, 700)
+						ctx.font = "14px Arial"
+						ctx.fillText("Crystal: " + crystal_store + " Stone: " + stone_store + " Leaf: " + leaf_store, 10, 25)
+						ctx.font = "16px Arial"
+						ctx.fillStyle = "black"
+						ctx.fillText("Hut - Cost: " + 10**(huts + 1) + " Stone", 10, 50)
+						ctx.font = "12px Arial"
+						ctx.fillText("Recruits a kobold", 25, 64)
+					}
+				}}
+			}
+			buildingsLoaded = true
+		}
+
+		function drawBolt() {
+			ctx.font = "16px Arial"
+			symbol = ""
+			if(inventory[team[0].weapon].type == "bow"){
+				ctx.fillStyle = "black"
+				symbol = "|"
+			} else {
+				ctx.fillStyle = "red"
+				symbol = "o"
+			}
+			if(Date.now()/1000 > team[0].cooldown){
+				ctx.fillText(symbol, bolt.x, bolt.y)
+			}
+		}
+
+		var ctx = this.canvas.getContext("2d")
+
+		if(showInventory){
+			drawInventory()
+		} else if(showBuildings) {
+			drawBuildingsScreen()
+		} else if(showStats) {
+			drawStats()
+		} else {
+			ctx.clearRect(0, 0, 800, 800)
+			drawInfo()
+			drawHero(team[0])
+			drawTeam(team)
+			for(i=0; i<enemies.length; i++) {
+				drawEnemy(enemies[i])
+			}
+			if(boltFired){
+				drawBolt()
+			}
+		}
+	}
+
+	function update(time) {
+		function handleDeath() {
+			bolt.reset()
+			if(enemies[closest_enemy].element == "crystal") {
+				crystal_store += species[enemies[closest_enemy].species].reward
+			} else if(enemies[closest_enemy].element == "stone") {
+				stone_store += species[enemies[closest_enemy].species].reward
+			} else if(enemies[closest_enemy].element == "leaf") {
+				leaf_store += species[enemies[closest_enemy].species].reward
+			}
+
+			if(huts_filled < huts) {
+				huts_filled += 1
+				messages.push({text: "A " + enemies[closest_enemy].species + " joined you", timeout: Date.now()/1000 + 3})
+				team.push({name: enemies[closest_enemy].species,
+										health: species[enemies[closest_enemy].species].health,
+										defence: species[enemies[closest_enemy].species].defence,
+										cooldown: Date.now()/1000,
+										x: enemies[closest_enemy].x,
+										y: enemies[closest_enemy].y})
+			}
+			var droproll = 1000*Math.random()
+			var item_dropped
+			if(droproll < 25 && currentZone >= 3) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					item_dropped = "greatsword"
+				} else if(roll == 1) {
+					item_dropped = "greatbow"
+				} else {
+					item_dropped = "greatbow"
+				}
+			} else if(droproll < 50 && currentZone >= 3) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					var item_dropped = "full helm"
+				} else if(roll == 1) {
+					var item_dropped = "platebody"
+				} else {
+					var item_dropped = "platelegs"
+				}
+			} else if(droproll < 100 && currentZone >= 2) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					var item_dropped = "longsword"
+				} else if(roll == 1) {
+					var item_dropped = "longbow"
+				} else {
+					var item_dropped = "battlestaff"
+				}
+			} else if(droproll < 150 && currentZone >= 2) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					var item_dropped = "med helm"
+				} else if(roll == 1) {
+					var item_dropped = "chain torso"
+				} else {
+					var item_dropped = "chainskirt"
+				}
+			} else if(droproll < 250 && currentZone >= 1) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					var item_dropped = "shortsword"
+				} else if(roll == 1) {
+					var item_dropped = "shortbow"
+				} else {
+					var item_dropped = "staff"
+				}
+			} else if(droproll < 350 && currentZone >= 1) {
+				var roll = Math.floor(3*Math.random())
+				if(roll == 0) {
+					var item_dropped = "leather helm"
+				} else if(roll == 1) {
+					var item_dropped = "leather torso"
+				} else {
+					var item_dropped = "leather chaps"
+				}
+			}
+			if (item_dropped != undefined) {
+				var keys = Object.keys(inventory)
+				if(!keys.includes(item_dropped)) {
+					inventory[item_dropped] = drops[item_dropped]
+					inventory[item_dropped].owned = 1
+
+					if(inventory[item_dropped].type == "sword" || inventory[item_dropped].type == "magic" || inventory[item_dropped].type == "bow") {
+						inventory[item_dropped].attack = inventory[item_dropped].attack*(1.05**rebirth["equipment"].level)
+					} else {
+						inventory[item_dropped].defence = inventory[item_dropped].defence*(1.05**rebirth["equipment"].level)
+					}
+
+				} else {
+					inventory[item_dropped].owned += 1
+				}
+				messages.push({text: enemies[closest_enemy].species + " dropped a " + item_dropped, timeout: Date.now()/1000 + 3})
+			}
+			enemies.splice(closest_enemy, 1)
+
+			if(enemies.length == 0) {
+				currentStage += 1
+				if (currentStage > highestStages[currentZone - 1]) {
+					highestStages[currentZone - 1] = currentStage
+					rebirth_points += Math.floor(1.5*currentZone*(currentStage - 1))
+				}
+				bolt.reset()
+				if(currentStage == 10 && currentZone == highestZone) {
+					highestZone += 1
+					clickables["zone" + highestZone] = { left: 10 + 90*(highestZone-1), top: 10, height: 75, width: 75, action: function() {
+						loadZone(highestZone)
+					}}
+				}
+				spawnEnemies()
+				team[0].x = 350
+				team[0].y = 600
+
+				var n = 0
+				for(i=1; i<team.length; i++) {
+					team[i].x = 350 + 50*Math.cos(n*Math.PI)
+					team[i].y = 600 + 50*Math.ceil(n/2)
+					n += 1
+				}
+			}
+		}
+
+		var closest_dist = 2000
+		var closest_enemy = 0
+		for(i=0; i<enemies.length; i++){
+			xdif = Math.abs(enemies[i].x - team[0].x)
+			ydif = Math.abs(enemies[i].y - team[0].y)
+			dist = Math.sqrt(xdif*xdif + ydif*ydif)
+			if(dist < closest_dist) {
+				closest_dist = dist
+				closest_enemy = i
+			}
+		}
+		xdif = enemies[closest_enemy].x - team[0].x
+		ydif = enemies[closest_enemy].y - team[0].y
+
+		angle = Math.atan2(ydif, xdif)
+		movex = team[0].speed*Math.cos(angle)
+		movey = team[0].speed*Math.sin(angle)
+		if (closest_dist > inventory[team[0].weapon].range) {
+			team[0].x += movex
+			team[0].y += movey
+		} else {
+			if(Date.now()/1000 > team[0].cooldown){
+				if(boltFired == false && (inventory[team[0].weapon].type == "bow" || inventory[team[0].weapon].type == "magic")) {
+					boltFired = true
+					bolt.x = team[0].x
+					bolt.y = team[0].y
+					bolt.targetid = closest_enemy
+					team[0].cooldown = Date.now()/1000 + inventory[team[0].weapon].cooldown
+				}
+				if(inventory[team[0].weapon].type == "sword"){
+					damage = team[0].attack + inventory[team[0].weapon].attack
+					damage = damage*(100/(100-species[enemies[closest_enemy].species].defence))
+					enemies[closest_enemy].health -= damage
+					team[0].cooldown = Date.now()/1000 + inventory[team[0].weapon].cooldown
+				} else if(boltFired) {
+					diffx = enemies[bolt.targetid].x - bolt.x
+					diffy = enemies[bolt.targetid].y - bolt.y
+					dist = Math.sqrt(diffx*diffx + diffy*diffy)
+
+					if(dist < 15) {
+						damage = team[0].attack + inventory[team[0].weapon].attack
+						damage = damage*(100/(100-species[enemies[bolt.targetid].species].defence))
+						enemies[bolt.targetid].health -= damage
+						enemies[bolt.targetid].aggro = true
+						bolt.x = undefined
+						bolt.y = undefined
+						bolt.targetid = undefined
+						boltFired = false
+					}
+
+					angle = Math.atan2(diffy, diffx)
+					bolt.angle = angle
+					bolt.x += 5*Math.cos(angle)
+					bolt.y += 5*Math.sin(angle)
+				}
+				if(enemies[closest_enemy].health <= 0) {
+					handleDeath(closest_enemy)
+				}
+			}
+		}
+
+		for(i=1; i<team.length; i++) {
+			var closest_dist = 2000
+			var closest_enemy = 0
+			for(j=0; j<enemies.length; j++){
+				xdif = Math.abs(enemies[j].x - team[i].x)
+				ydif = Math.abs(enemies[j].y - team[i].y)
+				dist = Math.sqrt(xdif*xdif + ydif*ydif)
+				if(dist < closest_dist) {
+					closest_dist = dist
+					closest_enemy = j
+				}
+			}
+
+			xdif = enemies[closest_enemy].x - team[i].x
+			ydif = enemies[closest_enemy].y - team[i].y
+
+			angle = Math.atan2(ydif, xdif)
+			movex = 2*team[0].speed*Math.cos(angle)
+			movey = 2*team[0].speed*Math.sin(angle)
+			if (closest_dist > 25) {
+				team[i].x += movex
+				team[i].y += movey
+			} else {
+				if(Date.now()/1000 > team[i].cooldown){
+					damage = species[team[i].name].attack * 1.1**rebirth["ally"].level
+					defence = species[enemies[closest_enemy].species].defence
+					damage = damage*(100/(100-defence))
+					enemies[closest_enemy].health -= damage
+					team[i].cooldown = Date.now()/1000 + 1
+				}
+			}
+			if(enemies[closest_enemy].health <= 0) {
+				handleDeath(closest_enemy)
+			}
+		}
+
+		for(i=0; i<enemies.length; i++) {
+			var closest_dist = 2000
+			var closest_enemy = 0
+			for(j=0; j<team.length; j++){
+				xdif = Math.abs(enemies[i].x - team[j].x)
+				ydif = Math.abs(enemies[i].y - team[j].y)
+				dist = Math.sqrt(xdif*xdif + ydif*ydif)
+				if(dist < closest_dist) {
+					closest_dist = dist
+					closest_enemy = j
+				}
+			}
+
+			if(closest_dist > 100) {
+				enemies[i].trajectory.turning += (.5 - Math.random())/200
+				if(Math.abs(enemies[i].trajectory.turning) > .02) {
+					enemies[i].trajectory.turning = enemies[i].trajectory.turning/2
+				}
+				enemies[i].trajectory.angle += enemies[i].trajectory.turning
+
+				if(enemies[i].x < 25) {
+					enemies[i].x = 25
+					enemies[i].trajectory.angle += Math.PI
+				} else if(enemies[i].x > 675) {
+					enemies[i].x = 675
+					enemies[i].trajectory.angle += Math.PI
+				}
+				if(enemies[i].y < 25) {
+					enemies[i].y = 25
+					enemies[i].trajectory.angle += Math.PI
+				} else if(enemies[i].y > 675) {
+					enemies[i].y = 675
+					enemies[i].trajectory.angle += Math.PI
+				}
+
+				enemies[i].x += 2*Math.cos(enemies[i].trajectory.angle)/10
+				enemies[i].y += 2*Math.sin(enemies[i].trajectory.angle)/10
+			} else {
+				enemies[i].aggro = true
+			}
+			if(enemies[i].aggro){
+				xdif = Math.abs(enemies[i].x - team[closest_enemy].x)
+				ydif = Math.abs(enemies[i].y - team[closest_enemy].y)
+				dist = Math.sqrt(xdif*xdif + ydif*ydif)
+				xdif = team[closest_enemy].x - enemies[i].x
+				ydif = team[closest_enemy].y - enemies[i].y
+				angle = Math.atan2(ydif, xdif)
+				movex = Math.cos(angle)
+				movey = Math.sin(angle)
+				if(dist > 25) {
+					enemies[i].x += movex
+					enemies[i].y += movey
+				} else {
+					if(Date.now()/1000 > enemies[i].cooldown){
+						damage = species[enemies[i].species].attack
+						defence = team[closest_enemy].defence * 1.1**rebirth["ally"].level
+						if(closest_enemy == 0) {
+							defence += team[0].helmet ? inventory[team[0].helmet].defence : 0
+							defence += team[0].torso ? inventory[team[0].torso].defence : 0
+							defence += team[0].legs ? inventory[team[0].legs].defence : 0
+						}
+						damage = damage*(100/(100-defence))
+						team[closest_enemy].health -= damage
+						enemies[i].cooldown = Date.now()/1000 + 1
+					}
+
+					if(team[closest_enemy].health <= 0) {
+						team[closest_enemy].health = 0
+						if(team[closest_enemy]["name"] == "hero") {
+							team[0].health = 100
+							loadZone(currentZone)
+						} else {
+							huts_filled -= 1
+							team.splice(closest_enemy, 1)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	var now = Date.now(),
+		delta = (now - then)/1000
+
+	createCanvas()
+	if(!showInventory && !showBuildings && !showStats){
+		update(delta)
+	}
+
+	then = now
+
+	window.requestAnimationFrame(main)
+}
+
+window.onload = function() {
+	document.getElementById("cv").addEventListener("click", function(event) {
+		var x = event.offsetX,
+			y = event.offsetY
+			for(tag in clickables) {
+				if(x > clickables[tag].left && x < clickables[tag].left + clickables[tag].width
+					&& y > clickables[tag].top && y < clickables[tag].top + clickables[tag].height) {
+					item = tag.split(" ").slice(1).join(" ")
+					clickables[tag].action(item)
+				}
+			}
+	})
+
+	canvas = document.getElementById("cv");
+	spawnEnemies()
+	main();
+}
+
+</script>
+	<canvas height="800px" width="800px" id="cv"></canvas>
+</body>
