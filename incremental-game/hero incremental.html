@@ -674,16 +674,16 @@ var main = function() {
 						ctx.fillText(armor_tags[i], 12 + 100*(i%4), 436 + 100*Math.floor(i/4))
 						ctx.font = "12px Arial"
 						ctx.fillStyle = "black"
-						ctx.fillText("Defence: " + armor_details.defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
-						ctx.fillText("Owned: " + armor_details.owned, 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
+						ctx.fillText("Defence: " + armor_details.defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/4))
+						ctx.fillText("Owned: " + armor_details.owned, 12 + 100*(i%4), 462 + 100*Math.floor(i/4))
 						if(team[0].helmet == armor_tags[i] || team[0].torso == armor_tags[i] || team[0].legs == armor_tags[i]) {
-							ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/4))
 						} else {
-							ctx.fillText("Equip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							ctx.fillText("Equip", 12 + 100*(i%3), 516 + 100*Math.floor(i/4))
 						}
-						ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+						ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/4))
 
-						clickables["equip " + armor_tags[i]] = { left: 12+100*(i%3), top: 516 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+						clickables["equip " + armor_tags[i]] = { left: 12+100*(i%4), top: 516 + 100*Math.floor(i/4) - 12, height: 12, width: 30, action: function(item) {
 							var i = armor_tags.indexOf(item)
 							var item_stats = inventory[item]
 							if (item_stats.type == 'helmet') {
@@ -696,54 +696,54 @@ var main = function() {
 								var old_item = team[0].legs
 								team[0].legs = item
 							}
-							ctx.clearRect(12 + 100*(i%3), 422 + 100*Math.floor(i/3), 96, 96)
+							ctx.clearRect(12 + 100*(i%4), 422 + 100*Math.floor(i/4), 96, 96)
 							ctx.font = "16px Arial"
 							ctx.fillStyle = "black"
-							ctx.fillText(armor_tags[i], 12 + 100*(i%3), 436 + 100*Math.floor(i/3))
+							ctx.fillText(armor_tags[i], 12 + 100*(i%4), 436 + 100*Math.floor(i/4))
 							ctx.font = "12px Arial"
 							ctx.fillStyle = "black"
-							ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
-							ctx.fillText("Owned: " + inventory[item].owned, 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
-							ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
-							ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+							ctx.fillText("Owned: " + inventory[item].owned, 12 + 100*(i%4), 462 + 100*Math.floor(i/4))
+							ctx.fillText("Unequip", 12 + 100*(i%4), 516 + 100*Math.floor(i/4))
+							ctx.fillText("Craft", 80 + 100*(i%4), 516 + 100*Math.floor(i/4))
 
 							if(old_item && old_item != item) {
 								var j = armor_tags.indexOf(old_item)
 								item_stats = inventory[old_item]
-								ctx.clearRect(12 + 100*(j%3), 422 + 100*Math.floor(j/3), 96, 96)
+								ctx.clearRect(12 + 100*(j%4), 422 + 100*Math.floor(j/4), 96, 96)
 								ctx.font = "16px Arial"
 								ctx.fillStyle = "black"
-								ctx.fillText(armor_tags[j], 12 + 100*(j%3), 436 + 100*Math.floor(j/3))
+								ctx.fillText(armor_tags[j], 12 + 100*(j%4), 436 + 100*Math.floor(j/4))
 								ctx.font = "12px Arial"
 								ctx.fillStyle = "black"
-								ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(j%3), 450 + 100*Math.floor(j/3))
-								ctx.fillText("Owned: " + item_stats.owned, 12 + 100*(j%3), 462 + 100*Math.floor(j/3))
-								ctx.fillText("Equip", 12 + 100*(j%3), 516 + 100*Math.floor(j/3))
-								ctx.fillText("Craft", 80 + 100*(j%3), 516 + 100*Math.floor(j/3))
+								ctx.fillText("Defence: " + item_stats.defence.toFixed(2), 12 + 100*(j%4), 450 + 100*Math.floor(j/4))
+								ctx.fillText("Owned: " + item_stats.owned, 12 + 100*(j%4), 462 + 100*Math.floor(j/4))
+								ctx.fillText("Equip", 12 + 100*(j%4), 516 + 100*Math.floor(j/4))
+								ctx.fillText("Craft", 80 + 100*(j%4), 516 + 100*Math.floor(j/4))
 							}
 						}}
-						clickables["craft " + armor_tags[i]] = { left: 80+100*(i%3), top: 516 + 100*Math.floor(i/3) - 12, height: 12, width: 30, action: function(item) {
+						clickables["craft " + armor_tags[i]] = { left: 80+100*(i%4), top: 516 + 100*Math.floor(i/4) - 12, height: 12, width: 30, action: function(item) {
 							var i = armor_tags.indexOf(item)
 							var num_crafted = inventory[item].owned - 1
 							if (num_crafted > 0) {
 								inventory[item].defence += drops[item].defence*((1.01)**num_crafted - 1)
 								inventory[item].owned = 1
 							}
-							ctx.clearRect(12 + 100*(i%3), 422 + 100*Math.floor(i/3), 96, 96)
+							ctx.clearRect(12 + 100*(i%4), 422 + 100*Math.floor(i/4), 96, 96)
 
 							ctx.font = "16px Arial"
 							ctx.fillStyle = "black"
-							ctx.fillText(armor_tags[i], 12 + 100*(i%3), 436 + 100*Math.floor(i/3))
+							ctx.fillText(armor_tags[i], 12 + 100*(i%4), 436 + 100*Math.floor(i/4))
 							ctx.font = "12px Arial"
 							ctx.fillStyle = "black"
-							ctx.fillText("Defence: " + inventory[item].defence.toFixed(2), 12 + 100*(i%3), 450 + 100*Math.floor(i/3))
-							ctx.fillText("Owned: 1", 12 + 100*(i%3), 462 + 100*Math.floor(i/3))
+							ctx.fillText("Defence: " + inventory[item].defence.toFixed(2), 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+							ctx.fillText("Owned: 1", 12 + 100*(i%4), 462 + 100*Math.floor(i/4))
 							if(team[0].helmet == item || team[0].torso == item || team[0].legs == item) {
-								ctx.fillText("Unequip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+								ctx.fillText("Unequip", 12 + 100*(i%4), 516 + 100*Math.floor(i/4))
 							} else {
-								ctx.fillText("Equip", 12 + 100*(i%3), 516 + 100*Math.floor(i/3))
+								ctx.fillText("Equip", 12 + 100*(i%4), 516 + 100*Math.floor(i/4))
 							}
-							ctx.fillText("Craft", 80 + 100*(i%3), 516 + 100*Math.floor(i/3))
+							ctx.fillText("Craft", 80 + 100*(i%4), 516 + 100*Math.floor(i/4))
 						}}
 					} else {
 						ctx.font = "64px Arial"
