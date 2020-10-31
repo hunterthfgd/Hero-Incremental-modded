@@ -730,11 +730,11 @@ function rebirthResets() {
 		y: 600,
 		experience: team[0].experience,
 		health: 100*templeRewards["ring"],
-		baseAttack: 1,
-		attack: 1,
-		baseDefence: 10,
-		defence: 10,
-		speed: 2,
+		baseAttack: team[0].baseAttack,
+		attack: team[0].attack,
+		baseDefence: team[0].baseDefence,
+		defence: team[0].defence,
+		speed: team[0].speed,
 		cooldown: Date.now()/1000,
 		tempWeapon: "",
 		weapon: "hands",
@@ -1395,8 +1395,8 @@ function drawBuildingsScreen() {
 
 			if(support["meteor"].meteors.length > 0) {
 				buildings.addButton("upgrade meteor", "Upgrade", "14px Arial", "black", 350, 185, function() {
-					if(resources["crystal"] >= 250 * (2**support["meteor"].level - 1)) {
-						resources["crystal"] -= 250 * (2**support["meteor"].level - 1)
+					if(resources["crystal"] >= 250 * 2**support["meteor"].level) {
+						resources["crystal"] -= 250 * 2**support["meteor"].level
 						support["meteor"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1405,7 +1405,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade meteor")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(250 * (2**support["meteor"].level - 1)) + " Crystal", 350, 218)
+				ctx.fillText(Math.round(250 * 2**support["meteor"].level) + " Crystal", 350, 218)
 			}
 		} else if(building == "totem") {
 			ctx.strokeRect(200, 50, 350, 200)
@@ -1436,8 +1436,8 @@ function drawBuildingsScreen() {
 
 			if(support["totem"].totems.length > 0) {
 				buildings.addButton("upgrade totem", "Upgrade", "14px Arial", "black", 350, 185, function() {
-					if(resources["leaf"] >= 400 * (2**support["totem"].level - 1)) {
-						resources["leaf"] -= 400 * (2**support["totem"].level - 1)
+					if(resources["leaf"] >= 400 * 2**support["totem"].level) {
+						resources["leaf"] -= 400 * 2**support["totem"].level
 						support["totem"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1446,7 +1446,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade totem")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(400 * (2**support["totem"].level - 1)) + " Leaf", 350, 218)
+				ctx.fillText(Math.round(400 * 2**support["totem"].level) + " Leaf", 350, 218)
 			}
 		}
 	}
