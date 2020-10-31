@@ -24,10 +24,15 @@ class Page {
 		ctx.fillStyle = buttonProps.color
 		let height = parseInt(buttonProps.font)
 		let width = ctx.measureText(buttonProps.text).width
-		ctx.fillText(buttonProps.text, buttonProps.left, buttonProps.top)
 
 		if (buttonProps.rectWidth != undefined && buttonProps.rectHeight != undefined) {
-			ctx.strokeRect(buttonProps.left + width/2 - buttonProps.rectWidth/2, buttonProps.top - height + height/2 - buttonProps.rectHeight/2, buttonProps.rectWidth, buttonProps.rectHeight)
+			ctx.fillText(buttonProps.text, buttonProps.left + buttonProps.rectWidth/2 - width/2, buttonProps.top + buttonProps.rectHeight/2 + height/3)
+		} else {
+			ctx.fillText(buttonProps.text, buttonProps.left, buttonProps.top)
+		}
+
+		if (buttonProps.rectWidth != undefined && buttonProps.rectHeight != undefined) {
+			ctx.strokeRect(buttonProps.left, buttonProps.top, buttonProps.rectWidth, buttonProps.rectHeight)
 		}
 	}
 
@@ -39,8 +44,8 @@ class Page {
 			let width = ctx.measureText(button.text).width
 
 			if(button.rectWidth != undefined && button.rectHeight != undefined) {
-				if(x > button.left + width/2 - button.rectWidth/2 && x < button.left + width/2 + button.rectWidth/2
-					&& y > button.top - height/2 - button.rectHeight/2 && y < button.top - height/2 + button.rectHeight/2) {
+				if(x > button.left && x < button.left + button.rectWidth
+					&& y > button.top && y < button.top + button.rectHeight) {
 					var item = key.split(" ").splice(1).join(" ")
 					button.action(item)
 				}
@@ -59,17 +64,21 @@ battle = new Page()
 inv = new Page()
 buildings = new Page()
 stats = new Page()
+quests = new Page()
+temple = new Page()
 
 pages = {
 	battle: battle,
 	inv: inv,
 	buildings: buildings,
-	stats: stats
+	stats: stats,
+	quests: quests,
+	temple: temple
 }
 
 var currentPage = "battle"
 
-var species_tags = [ "kobold", "beast", "giant", "golem", "demon", "dragon" ]
+var species_tags = [ "kobold", "beast", "giant", "golem", "demon", "dragon", "temple" ]
 var species = {
 	"kobold": {
 		symbol: "k",
@@ -80,37 +89,37 @@ var species = {
 	},
 	"beast": {
 		symbol: "b",
-		health: 25,
-		attack: 10,
-		defence: 10,
+		health: 40,
+		attack: 15,
+		defence: 25,
 		reward: 5
 	},
 	"giant": {
 		symbol: "gi",
-		health: 100,
-		attack: 20,
-		defence: 20,
+		health: 110,
+		attack: 120,
+		defence: 80,
 		reward: 25
 	},
 	"golem": {
 		symbol: "go",
-		health: 300,
-		attack: 40,
-		defence: 40,
+		health: 400,
+		attack: 600,
+		defence: 160,
 		reward: 50
 	},
 	"demon": {
 		symbol: "de",
 		health: 1000,
-		attack: 80,
-		defence: 80,
+		attack: 4500,
+		defence: 300,
 		reward: 100
 	},
 	"dragon": {
 		symbol: "dr",
-		health: 3000,
-		attack: 160,
-		defence: 160,
+		health: 4000,
+		attack: 10000,
+		defence: 600,
 		reward: 500
 	}
 }
@@ -145,57 +154,57 @@ var armor_tags = ["leather helm", "leather chaps", "leather torso", "wooden ring
 									"full helm", "platelegs", "platebody", "gold ring" ]
 var drops = {
 	"shortsword": {
-		attack: 2,
-		range: 25,
-		cooldown: .5,
+		attack: 9.6,
+		range: 30,
+		cooldown: 2,
 		type: "sword"
 	},
 	"longsword": {
-		attack: 4,
-		range: 30,
-		cooldown: .5,
+		attack: 110,
+		range: 35,
+		cooldown: 2,
 		type: "sword"
 	},
 	"greatsword": {
-		attack: 30,
-		range: 35,
-		cooldown: .5,
+		attack: 1500,
+		range: 40,
+		cooldown: 2,
 		type: "sword"
 	},
 	"shortbow": {
-		attack: .5,
-		range: 110,
-		cooldown: .75,
+		attack: 2.5,
+		range: 150,
+		cooldown: 1,
 		type: "bow"
 	},
 	"longbow": {
-		attack: 5,
+		attack: 30,
 		range: 200,
 		cooldown: 1,
 		type: "bow"
 	},
 	"greatbow": {
-		attack: 25,
+		attack: 550,
 		range: 300,
 		cooldown: 1.5,
 		type: "bow"
 	},
 	"staff": {
-		attack: 5,
+		attack: 6.25,
 		range: 50,
 		cooldown: 1.5,
 		type: "magic"
 	},
 	"battlestaff": {
-		attack: 20,
+		attack: 70,
 		range: 75,
-		cooldown: 1,
+		cooldown: 1.5,
 		type: "magic"
 	},
 	"tome": {
-		attack: 20,
+		attack: 375,
 		range: 75,
-		cooldown: .5,
+		cooldown: .75,
 		type: "magic"
 	},
 	"leather helm": {
@@ -203,23 +212,23 @@ var drops = {
 		type: "helmet"
 	},
 	"med helm": {
-		defence: 10,
+		defence: 25,
 		type: "helmet"
 	},
 	"full helm": {
-		defence: 20,
+		defence: 75,
 		type: "helmet"
 	},
 	"leather torso": {
-		defence: 15,
+		defence: 10,
 		type: "torso"
 	},
 	"chain torso": {
-		defence: 20,
+		defence: 35,
 		type: "torso"
 	},
 	"platebody": {
-		defence: 40,
+		defence: 90,
 		type: "torso"
 	},
 	"leather chaps": {
@@ -227,12 +236,22 @@ var drops = {
 		type: "legs"
 	},
 	"chainskirt": {
-		defence: 15,
+		defence: 30,
 		type: "legs"
 	},
 	"platelegs": {
-		defence: 20,
+		defence: 80,
 		type: "legs"
+	},
+	"wooden ring": {
+		range: 100,
+		type: "ring"
+	},
+	"iron ring": {
+		type: "ring"
+	},
+	"gold ring": {
+		type: "ring"
 	}
 }
 
@@ -242,15 +261,19 @@ var team = [{
 	name: "hero",
 	x: 350,
 	y: 600,
+	experience: 0,
 	health: 100,
+	baseAttack: 1,
 	attack: 1,
+	baseDefence: 10,
 	defence: 10,
 	speed: 2,
 	cooldown: Date.now()/1000,
 	weapon: "hands",
 	helmet: "",
 	torso: "",
-	legs: ""
+	legs: "",
+	rings: []
 }]
 
 var inventory = {
@@ -262,49 +285,281 @@ var inventory = {
 	}
 }
 
-var rebirth = {
-	"hero": {
-		level: 0,
-		cost: 20
+var questStore = {
+	quest_points: 0,
+	"speed": {
+		bought: false
 	},
-	"ally": {
-		level: 0,
-		cost: 20
+	"craftAll": {
+		bought: false
 	},
-	"equipment": {
-		level: 0,
-		cost: 20
+	"reset10": {
+		bought: false,
+		toggled: false
 	},
-	"resource": {
-		level: 0,
-		cost: 100
+	"meleeSwap": {
+		bought: false,
+		toggled: false
 	}
 }
 
+var quests_list = {
+	"kobold": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 50
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 100
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 10
+		}
+	},
+	"beast": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 200
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 400
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 100
+		}
+	},
+	"giant": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 800
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 1500
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 400
+		}
+	},
+	"golem": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 2500
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 3000
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 2500
+		}
+	},
+	"demon": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 10000
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 6000
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 10000
+		}
+	},
+	"dragon": {
+		"kc": {
+			goal: 1000,
+			progress: 0,
+			reward: 50000
+		},
+		"megas": {
+			goal: 10,
+			progress: 0,
+			reward: 12000
+		},
+		"waves": {
+			goal: 10,
+			progress: 0,
+			reward: 50000
+		}
+	},
+	"misc": {
+		"time": {
+			start: Date.now()/1000,
+			lastSaveDate: Date.now()/1000,
+			completed: false
+		},
+		"craft": {
+			progress: 0,
+			completed: false
+		},
+		"meteor": {
+			progress: 0
+		},
+		"noEquipment": {
+			progress: 1,
+			didEquip: false
+		}
+	}
+}
+var original_quests_list = Object.assign({}, quests_list)
+
+var templeRewards = {
+	"ring": 1,
+	"loot": 1,
+	"wisdom": false
+}
+
+var rebirth = {
+	"hero": {
+		level: 0,
+		cost: 50
+	},
+	"ally": {
+		level: 0,
+		cost: 200
+	},
+	"equipment": {
+		level: 0,
+		cost: 100
+	},
+	"resource": {
+		level: 0,
+		cost: 250
+	}
+}
+var rebirth_original = Object.assign({}, rebirth)
+
+var resources = {
+	crystal: 0,
+	stone: 0,
+	leaf: 0
+}
+
+var housing = {
+	"kobold": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	},
+	"beast": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	},
+	"giant": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	},
+	"golem": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	},
+	"demon": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	},
+	"dragon": {
+		owned: 0,
+		filled: 0,
+		level: 0
+	}
+}
+
+var support = {
+	"meteor": {
+		meteors: [],
+		level: 0
+	},
+	"totem": {
+		totems: [],
+		level: 0
+	}
+}
+
+var buildingsSubmenus = {
+	showHouses: false,
+	showSupport: false,
+	reset: function() {
+		this.showHouses = ""
+		this.showSupport = ""
+	}
+}
+
+pageLoadChecker = {
+	info: false,
+	inventory: false,
+	buildings: false,
+	quests: false,
+	stats: false,
+	temple: false
+}
+
 var enemies = []
-var meteors = []
-var totems = []
 var messages = []
-var infoLoaded = false
-var inventoryLoaded = false
-var buildingsLoaded = false
-var statsLoaded = false
 
 var rebirth_points = 0
 var highestStages = [ 1, 0, 0, 0, 0, 0 ]
 
-var currentZone = 1,
-	highestZone = 1,
+var currentArea = 1,
+	highestArea = 1,
 	currentStage = 1
-var crystal_store = 0,
-	stone_store = 0,
-	leaf_store = 0
-var huts = 0,
-	huts_filled = 0,
-	dens = 0,
-	dens_filled = 0,
-	caves = 0,
-	caves_filled = 0
+
+savefile = localStorage.getItem("savefile")
+savefile = JSON.parse(savefile)
+if(savefile != undefined) {
+	templeRewards = savefile.templeRewards
+	questStore = savefile.questStore
+	currentArea = savefile.currentArea
+	devmode = savefile.devmode
+	housing = savefile.housing
+	support = savefile.support
+	rebirth_points = savefile.rebirth_points
+	resources = savefile.resources
+	highestStages = savefile.highestStages
+	rebirth = savefile.rebirth
+	quests_list = savefile.quests_list
+	inventory = savefile.inventory
+	team = savefile.team
+
+	for(i=0; i<highestStages.length; i++) {
+		if(highestStages[i] == 0) {
+			highestArea = i
+			break
+		}
+		if(i == highestStages.length - 1) {
+			highestArea = i + 1
+		}
+	}
+
+	quests_list["misc"]["time"].start += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+}
 
 var then = Date.now(),
 	start
@@ -315,13 +570,24 @@ function spawnEnemies() {
 	let tot_noobs = Math.ceil(currentStage/3)
 	let num_noobs = 0
 	let species_index
-	let prestige = currentStage - 7 > 1 ? currentStage - 7 : 0
+	let prestige = currentStage - 4 > 1 ? currentStage - 4 : 0
+	let mega
 	for(i=0; i<currentStage; i++){
-		if(num_noobs < tot_noobs && currentStage > 1 && currentZone > 1) {
-			species_index = Math.floor((currentZone - 1)*Math.random())
+		mega = false
+		if(num_noobs < tot_noobs && currentStage > 1 && currentArea > 1) {
+			species_index = Math.floor((currentArea - 1)*Math.random())
 			num_noobs += 1
 		} else {
-			species_index =  currentZone - 1
+			species_index =  currentArea - 1
+		}
+		let health = species[species_tags[species_index]].health*1.3**prestige
+		if(prestige) {
+			let roll = 1000*Math.random()
+			if(roll < 10) {
+				mega = true
+				species_index = currentArea - 1
+				health = 10*species[species_tags[species_index]].health*1.3**prestige
+			}
 		}
 		enemies.push({
 			species: species_tags[species_index],
@@ -332,60 +598,113 @@ function spawnEnemies() {
 				angle: 2*Math.PI*Math.random(),
 				turning: 0
 			},
-			cooldown: Date.now()/1000,
-			aggro: false,
-			health: species[species_tags[species_index]].health*1.4**prestige,
-			prestige: prestige
+			targetid: undefined,
+			cooldown: undefined,
+			total_health: health,
+			health: health,
+			prestige: prestige,
+			mega: mega
 		})
 	}
 }
 
-function loadZone(zone) {
-	currentZone = zone
+function loadArea(area) {
+	if(area == 7) {
+		currentPage = "temple"
+		return
+	}
+	if(area != currentArea) {
+		quests_list["misc"]["time"].start = Date.now()/1000
+	}
+	currentArea = area
 	currentStage = 1
 	team[0].health = 100
-	team[0].x = 350
+	team[0].x = 400
 	team[0].y = 600
 
 	n = 0
 	for(i=1; i<team.length; i++) {
-		team[i].x = 350 + 50*Math.cos(n*Math.PI)
+		team[i].x = 400 + 50*Math.cos(n*Math.PI)
 		team[i].y = 600 + 25*Math.ceil(n/2)
-		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level)
+		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10
 	}
 
-	for(i=0; i<totems.length; i++) {
+	for(i=0; i<support["totem"].totems.length; i++) {
 		let x = 500*Math.random() + 150
 		let y = 500*Math.random() + 150
 
-		totems[i].x = x
-		totems[i].y = y
+		support["totem"].totems[i].x = x
+		support["totem"].totems[i].y = y
 	}
 
 	bolts = []
 	enemies.splice(0, enemies.length)
 	spawnEnemies()
+
+	quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
+	savefile = {
+		templeRewards: templeRewards,
+		questStore: questStore,
+		currentArea: currentArea,
+		devmode: devmode,
+		housing: housing,
+		support: support,
+		rebirth_points: rebirth_points,
+		resources: resources,
+		highestStages: highestStages,
+		rebirth: rebirth,
+		quests_list: quests_list,
+		inventory: inventory,
+		team: team
+	}
+	localStorage.setItem("savefile", JSON.stringify(savefile))
 }
 
 function rebirthResets() {
+	if(quests_list["misc"]["time"].completed == false) {
+		quests_list["misc"]["time"].start = Date.now()/1000
+	}
+	for(i=1; i<highestArea; i++) {
+		battle.removeButton("area " + i)
+	}
 	bolts = []
-	highestZone = 1
-	currentZone = 1
+	highestArea = 1
+	currentArea = 1
 	currentStage = 1
 	highestStages = [ 1, 0, 0, 0, 0, 0 ]
+	buildingsSubmenus.reset()
 
-	huts = 0
-	huts_filled = 0
-	dens = 0
-	dens_filled = 0
-	caves = 0
-	caves_filled = 0
-	meteors = []
-	totems = []
+	for(i=0; i<species_tags.length - 1; i++) {
+		housing[species_tags[i]].owned = 0
+		housing[species_tags[i]].filled = 0
+		housing[species_tags[i]].level = 0
+	}
+	support = {
+		"meteor": {
+			meteors: [],
+			level: 0
+		},
+		"totem": {
+			totems: [],
+			level: 0
+		}
+	}
 
-	crystal_store = 0
-	stone_store = 0
-	leaf_store = 0
+	resources["crystal"] = 0
+	resources["stone"] = 0
+	resources["leaf"] = 0
+
+	let wr, ir, gr
+	if(team[0].rings.includes("wooden ring")) {
+		wr = inventory["wooden ring"]
+	}
+	if(team[0].rings.includes("iron ring")) {
+		ir = inventory["iron ring"]
+	}
+	if(team[0].rings.includes("gold ring")) {
+		gr = inventory["gold ring"]
+	}
+
 	inventory = {
 		"hands": {
 			attack: 2,
@@ -394,19 +713,122 @@ function rebirthResets() {
 			type: "sword"
 		}
 	}
+
+	if(wr != undefined) {
+		inventory["wooden ring"] = wr
+	}
+	if(ir != undefined) {
+		inventory["iron ring"] = ir
+	}
+	if(gr != undefined) {
+		inventory["gold ring"] = gr
+	}
+
 	team = [{
 		name: "hero",
 		x: 350,
 		y: 600,
-		health: 100,
-		attack: team[0].attack,
-		defence: team[0].defence,
-		speed: team[0].speed,
+		experience: team[0].experience,
+		health: 100*templeRewards["ring"],
+		baseAttack: 1,
+		attack: 1,
+		baseDefence: 10,
+		defence: 10,
+		speed: 2,
 		cooldown: Date.now()/1000,
+		tempWeapon: "",
 		weapon: "hands",
 		helmet: "",
 		torso: "",
-		legs: ""
+		legs: "",
+		rings: team[0].rings
+	}]
+}
+
+function templeResets() {
+	original_quests_list["misc"] = quests_list["misc"]
+	quests_list = Object.assign({}, original_quests_list)
+	rebirth = Object.assign({}, rebirth_original)
+	rebirth_points = 0
+
+	for(i=1; i<highestArea; i++) {
+		battle.removeButton("area " + i)
+	}
+	bolts = []
+	highestArea = 1
+	currentArea = 1
+	currentStage = 1
+	highestStages = [ 1, 0, 0, 0, 0, 0 ]
+	buildingsSubmenus.reset()
+
+	for(i=0; i<species_tags.length - 1; i++) {
+		housing[species_tags[i]].owned = 0
+		housing[species_tags[i]].filled = 0
+		housing[species_tags[i]].level = 0
+	}
+	support = {
+		"meteor": {
+			meteors: [],
+			level: 0
+		},
+		"totem": {
+			totems: [],
+			level: 0
+		}
+	}
+
+	resources["crystal"] = 0
+	resources["stone"] = 0
+	resources["leaf"] = 0
+
+	let wr, ir, gr
+	if(team[0].rings.includes("wooden ring")) {
+		wr = inventory["wooden ring"]
+	}
+	if(team[0].rings.includes("iron ring")) {
+		ir = inventory["iron ring"]
+	}
+	if(team[0].rings.includes("gold ring")) {
+		gr = inventory["gold ring"]
+	}
+
+	inventory = {
+		"hands": {
+			attack: 2,
+			range: 25,
+			cooldown: 1,
+			type: "sword"
+		}
+	}
+
+	if(wr != undefined) {
+		inventory["wooden ring"] = wr
+	}
+	if(ir != undefined) {
+		inventory["iron ring"] = ir
+	}
+	if(gr != undefined) {
+		inventory["gold ring"] = gr
+	}
+
+	team = [{
+		name: "hero",
+		x: 350,
+		y: 600,
+		experience: 0,
+		health: 100*templeRewards["ring"],
+		baseAttack: 1,
+		attack: 1,
+		baseDefence: 10,
+		defence: 10,
+		speed: 2,
+		cooldown: Date.now()/1000,
+		tempWeapon: "",
+		weapon: "hands",
+		helmet: "",
+		torso: "",
+		legs: "",
+		rings: team[0].rings
 	}]
 }
 
@@ -422,8 +844,8 @@ function drawTeam(team) {
 		ctx.font = "16px Arial"
 		ctx.fillText(species[team[i].name].symbol, team[i].x, team[i].y)
 
-		if(team[i].health < species[team[i]["name"]].health* (1.5**rebirth["ally"].level)) {
-			ratio = team[i].health/(species[team[i]["name"]].health* (1.5**rebirth["ally"].level))
+		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10) {
+			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10)
 			ctx.fillStyle = "black"
 			ctx.strokeRect(team[i].x - 40, team[i].y - 30, 80, 8)
 			ctx.fillStyle = "blue"
@@ -437,11 +859,15 @@ function drawEnemies(enemies) {
 		enemy_element = enemies[i]["element"]
 		enemy_species = enemies[i]["species"]
 		ctx.fillStyle = elements[enemy_element].color
-		ctx.font = "16px Arial"
+		if(enemies[i].mega == true) {
+			ctx.font = "32px Arial"
+		} else {
+			ctx.font = "16px Arial"
+		}
 		ctx.fillText(species[enemy_species].symbol, enemies[i].x, enemies[i].y)
 
-		if(enemies[i].health < species[enemy_species].health*(1.4**enemies[i].prestige)) {
-			ratio = enemies[i].health/(species[enemy_species].health*(1.4**enemies[i].prestige))
+		if(enemies[i].health < enemies[i].total_health) {
+			ratio = enemies[i].health/enemies[i].total_health
 			ctx.fillStyle = "red"
 			ctx.fillRect(enemies[i].x - 40, enemies[i].y - 30, 80*ratio, 8)
 			ctx.strokeRect(enemies[i].x - 40, enemies[i].y - 30, 80, 8)
@@ -450,10 +876,10 @@ function drawEnemies(enemies) {
 }
 
 function drawInfo() {
-	if(!infoLoaded) {
-		for (var i=0; i<highestZone; i++) {
-			battle.addButton("zone " + (i + 1), species_tags[i], "14px Arial", "black", 25 + 90*i, 50, function(number) {
-				loadZone(number)
+	if(!pageLoadChecker.info) {
+		for (var i=0; i<highestArea; i++) {
+			battle.addButton("area " + (i + 1), species_tags[i], "14px Arial", "black", 9 + 88*i, 10, function(number) {
+				loadArea(number)
 			}, 75, 75)
 		}
 
@@ -463,17 +889,20 @@ function drawInfo() {
 		battle.addButton("buildings", "Buildings", "14px Arial", "black", 10, 200, function() {
 			currentPage = "buildings"
 		})
-		battle.addButton("stats", "Stats", "14px Arial", "black", 10, 220, function() {
+		battle.addButton("quests", "Quests", "14px Arial", "black", 10, 220, function() {
+			currentPage = "quests"
+		})
+		battle.addButton("stats", "Stats", "14px Arial", "black", 10, 240, function() {
 			currentPage = "stats"
 		})
 	}
-	infoLoaded = true
+	pageLoadChecker.info = true
 
-	for(var i=1; i<=highestZone; i++){
-		battle.drawButton("zone " + i)
+	for(var i=1; i<=highestArea; i++){
+		battle.drawButton("area " + i)
 		ctx.font = "14px Arial"
 		ctx.fillStyle = "black"
-		if(i == currentZone) {
+		if(i == currentArea) {
 			ctx.fillText("Stage: " + currentStage, 20 + 88*(i-1), 70)
 		} else {
 			ctx.fillText("Highest: " + highestStages[i-1], 11 + 88*(i-1), 70)
@@ -482,13 +911,14 @@ function drawInfo() {
 
 	ctx.fillText("Health " + Math.ceil(team[0].health), 10, 100)
 	ctx.fillStyle = "blue"
-	ctx.fillText("Crystal " + crystal_store, 10, 120)
+	ctx.fillText("Crystal " + Math.round(resources["crystal"]), 10, 120)
 	ctx.fillStyle = "brown"
-	ctx.fillText("Stone " + stone_store, 10, 140)
+	ctx.fillText("Stone " + Math.round(resources["stone"]), 10, 140)
 	ctx.fillStyle = "green"
-	ctx.fillText("Leaf " + leaf_store, 10, 160)
+	ctx.fillText("Leaf " + Math.round(resources["leaf"]), 10, 160)
 	battle.drawButton("inventory")
 	battle.drawButton("buildings")
+	battle.drawButton("quests")
 	battle.drawButton("stats")
 
 	ctx.font = "10px Arial"
@@ -504,13 +934,27 @@ function drawInfo() {
 }
 
 function drawInventory() {
-	if (!inventoryLoaded){
+	if (!pageLoadChecker.inventory){
 		ctx.clearRect(0, 0, 800, 800)
 		inv.addButton("close", "Close Inventory", "14px Arial", "black", 10, 10, function() {
 			currentPage = "battle"
-			inventoryLoaded = false
+			pageLoadChecker.inventory = false
 		})
 		inv.drawButton("close")
+
+		if(questStore["craftAll"].bought) {
+			inv.addButton("craftAll", "Craft All", "14px Arial", "black", 10, 27, function() {
+				for(var key in inv.buttons) {
+					if(key.includes("craft ")) {
+						let item = key.split(" ").splice(1).join(" ")
+						inv.buttons[key].action(item)
+					}
+				}
+				pageLoadChecker.inventory = false
+				drawInventory()
+			}, 75, 20)
+			inv.drawButton("craftAll")
+		}
 
 		ctx.strokeRect(10, 50, 300, 30)
 		ctx.font = "16px Arial"
@@ -537,7 +981,8 @@ function drawInventory() {
 					inv.addButton("unequip " + weapon_tags[i], "Unequip", "14px Arial", "black", 12 + 100*(i%3), 176 + 100*Math.floor(i/3), function(item) {
 						inv.removeButton("unequip " + item)
 						team[0].weapon = "hands"
-						inventoryLoaded = false
+						team[0].tempWeapon = ""
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 					inv.drawButton("unequip " + weapon_tags[i])
@@ -545,10 +990,21 @@ function drawInventory() {
 					inv.addButton("equip " + weapon_tags[i], "Equip", "14px Arial", "black", 12 + 100*(i%3), 176 + 100*Math.floor(i/3), function(item) {
 						inv.removeButton("equip " + item)
 
+						quests_list["misc"]["noEquipment"].didEquip = true
+
 						var i = weapon_tags.indexOf(item)
 						var item_stats = inventory[item]
 						team[0].weapon = item
-						inventoryLoaded = false
+						if(questStore["meleeSwap"].toggled && (item_stats.type == "bow" || item_stats.type == "magic")) {
+							if(inventory["greatsword"]) {
+								team[0].tempWeapon = "greatsword"
+							} else if(inventory["longsword"]) {
+								team[0].tempWeapon = "longsword"
+							} else if(inventory["shortsword"]) {
+								team[0].tempWeapon = "shortsword"
+							}
+						}
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 					inv.drawButton("equip " + weapon_tags[i])
@@ -556,13 +1012,20 @@ function drawInventory() {
 				if(inv.buttons["craft " + weapon_tags[i]] == undefined) {
 					inv.addButton("craft " + weapon_tags[i], "Craft", "14px Arial", "black", 76 + 100*(i%3), 176 + 100*Math.floor(i/3), function(item) {
 						var i = weapon_tags.indexOf(item)
-						var num_crafted = inventory[item].owned - 1
-						if (num_crafted > 0) {
-							inventory[item].attack += inventory[item].attack*((1.02)**num_crafted - 1)
-							inventory[item].cooldown -= inventory[item].cooldown*((1.01)**num_crafted - 1)
-							inventory[item].owned = 1
+						quests_list["misc"]["craft"].progress += inventory[item].owned - 1
+						let craft_bonus = 1.0
+						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress > 10000) {
+							craft_bonus = 1.1
+							quests_list["misc"]["craft"].completed = true
+							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+							questStore.quest_points += 1
 						}
-						inventoryLoaded = false
+						inventory[item].level += inventory[item].owned - 1
+						inventory[item].attack = drops[item].attack*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
+						let cd = drops[item].cooldown
+						inventory[item].cooldown = cd/(inventory[item].level+1)**1.1 + (cd-cd/2**1.1)
+						inventory[item].owned = 1
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 				}
@@ -582,10 +1045,18 @@ function drawInventory() {
 				ctx.fillText(armor_tags[i], 12 + 100*(i%4), 436 + 100*Math.floor(i/4))
 				ctx.font = "12px Arial"
 				ctx.fillStyle = "black"
-				ctx.fillText("Defence: " + armor_details.defence.toFixed(2), 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+				if(armor_tags[i] == "wooden ring") {
+					ctx.fillText("Range: " + armor_details.range.toFixed(2), 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+				} else if(armor_tags[i] == "iron ring") {
+					ctx.fillText("Attracts meteors", 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+				} else if(armor_tags[i] == "gold ring") {
+					ctx.fillText("Doubles health", 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+				} else {
+					ctx.fillText("Defence: " + armor_details.defence.toFixed(2), 12 + 100*(i%4), 450 + 100*Math.floor(i/4))
+				}
 				ctx.fillText("Owned: " + armor_details.owned, 12 + 100*(i%4), 462 + 100*Math.floor(i/4))
 
-				if(team[0].helmet == armor_tags[i] || team[0].torso == armor_tags[i] || team[0].legs == armor_tags[i]) {
+				if(team[0].helmet == armor_tags[i] || team[0].torso == armor_tags[i] || team[0].legs == armor_tags[i] || team[0].rings.includes(armor_tags[i])) {
 					inv.addButton("unequip " + armor_tags[i], "Unequip", "14px Arial", "black", 12 + 100*(i%4), 516 + 100*Math.floor(i/4), function(item) {
 						inv.removeButton("unequip " + item)
 						var i = armor_tags.indexOf(item)
@@ -594,26 +1065,33 @@ function drawInventory() {
 							team[0].helmet = ""
 						} else if (item_stats.type == 'torso') {
 							team[0].torso = ""
-						} else {
+						} else if (item_stats.type == 'legs') {
 							team[0].legs = ""
+						} else {
+							team[0].rings.splice(team[0].rings.indexOf(item), 1)
 						}
-						inventoryLoaded = false
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 					inv.drawButton("unequip " + armor_tags[i])
 				} else {
 					inv.addButton("equip " + armor_tags[i], "Equip", "14px Arial", "black", 12 + 100*(i%4), 516 + 100*Math.floor(i/4), function(item) {
 						inv.removeButton("equip " + item)
+
+						quests_list["misc"]["noEquipment"].didEquip = true
+
 						var i = armor_tags.indexOf(item)
 						var item_stats = inventory[item]
 						if (item_stats.type == 'helmet') {
 							team[0].helmet = item
 						} else if (item_stats.type == 'torso') {
 							team[0].torso = item
-						} else {
+						} else if (item_stats.type == 'legs'){
 							team[0].legs = item
+						} else {
+							team[0].rings.push(item)
 						}
-						inventoryLoaded = false
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 					inv.drawButton("equip " + armor_tags[i])
@@ -621,12 +1099,21 @@ function drawInventory() {
 				if(inv["craft " + armor_tags[i]] == undefined) {
 					inv.addButton("craft " + armor_tags[i], "Craft", "14px Arial", "black", 76 + 100*(i%4), 516 + 100*Math.floor(i/4), function(item) {
 						var i = armor_tags.indexOf(item)
-						var num_crafted = inventory[item].owned - 1
-						if (num_crafted > 0) {
-							inventory[item].defence += drops[item].defence*((1.02)**num_crafted - 1)
-							inventory[item].owned = 1
+						quests_list["misc"]["craft"].progress += inventory[item].owned - 1
+						let craft_bonus = 1.0
+						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress > 10000) {
+							craft_bonus = 1.1
+							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+							questStore.quest_points += 1
 						}
-						inventoryLoaded = false
+						inventory[item].level += inventory[item].owned - 1
+						if(item == "wooden ring") {
+							inventory[item].range = drops[item].range*(Math.sqrt(inventory[item].level)/4 + 3/4)*craft_bonus
+						} else {
+							inventory[item].defence = drops[item].defence*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
+						}
+						inventory[item].owned = 1
+						pageLoadChecker.inventory = false
 						drawInventory()
 					})
 				}
@@ -637,140 +1124,801 @@ function drawInventory() {
 				ctx.fillText("?", 60 + 100*(i%4) - 16, 470 + 100*Math.floor(i/4) + 24)
 			}
 		}
-		inventoryLoaded = true
+		pageLoadChecker.inventory = true
 	}
 }
 
 function drawBuildingsScreen() {
-	if(!buildingsLoaded) {
+	function removeDetailsButtons() {
+		buildings.removeButton("buy hut")
+		buildings.removeButton("upgrade hut")
+		buildings.removeButton("buy den")
+		buildings.removeButton("upgrade den")
+		buildings.removeButton("buy cave")
+		buildings.removeButton("upgrade cave")
+		buildings.removeButton("buy mountain")
+		buildings.removeButton("upgrade mountain")
+		buildings.removeButton("buy pit")
+		buildings.removeButton("upgrade pit")
+		buildings.removeButton("buy nest")
+		buildings.removeButton("upgrade nest")
+		buildings.removeButton("buy meteor")
+		buildings.removeButton("upgrade meteor")
+		buildings.removeButton("buy totem")
+		buildings.removeButton("upgrade totem")
+	}
+	function showBuildingDetails(building) {
+		removeDetailsButtons()
+		if(building == "hut") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Hut", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Kobold", 240, 75)
+			ctx.fillText("Owned: " + housing["kobold"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["kobold"].level, 190, 115)
+
+			buildings.addButton("buy hut", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["kobold"].owned + 1)) {
+					resources["stone"] -= 10**(housing["kobold"].owned + 1)
+					housing["kobold"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy hut")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(housing["kobold"].owned + 1) + " Stone", 205, 218)
+			if(housing["kobold"].owned > 0) {
+				buildings.addButton("upgrade hut", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 10 * (housing["kobold"].level + 1)**1.5) {
+						resources["stone"] -= 10 * (housing["kobold"].level + 1)**1.5
+						housing["kobold"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade hut")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(10 * (housing["kobold"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "den") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Den", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Beast", 245, 75)
+			ctx.fillText("Owned: " + housing["beast"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["beast"].level, 190, 115)
+
+			buildings.addButton("buy den", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["beast"].owned + 2)) {
+					resources["stone"] -= 10**(housing["beast"].owned + 2)
+					housing["beast"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			ctx.font = "14px Arial"
+			buildings.drawButton("buy den")
+			ctx.fillText(10**(housing["beast"].owned + 2) + " Stone", 205, 218)
+
+			if(housing["beast"].owned > 0) {
+				buildings.addButton("upgrade den", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 100 * (housing["beast"].level + 1)**1.5) {
+						resources["stone"] -= 100 * (housing["beast"].level + 1)**1.5
+						housing["beast"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade den")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(100 * (housing["beast"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "cave") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Cave", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Giant", 260, 75)
+			ctx.fillText("Owned: " + housing["giant"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["giant"].level, 190, 115)
+
+			buildings.addButton("buy cave", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["giant"].owned + 3)) {
+					resources["stone"] -= 10**(housing["giant"].owned + 3)
+					housing["giant"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy cave")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(housing["giant"].owned + 3) + " Stone", 205, 218)
+
+			if(housing["giant"].owned > 0) {
+				buildings.addButton("upgrade cave", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 1000 * (housing["giant"].level + 1)**1.5) {
+						resources["stone"] -= 1000 * (housing["giant"].level + 1)**1.5
+						housing["giant"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade cave")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(1000 * (housing["giant"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "mountain") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Mountain", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Golem", 300, 75)
+			ctx.fillText("Owned: " + housing["golem"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["golem"].level, 190, 115)
+
+			buildings.addButton("buy mountain", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["golem"].owned + 4)) {
+					resources["stone"] -= 10**(housing["golem"].owned + 4)
+					housing["golem"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy mountain")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(housing["golem"].owned + 4) + " Stone", 205, 218)
+			if(housing["golem"].owned > 0) {
+				buildings.addButton("upgrade mountain", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 10000 * (housing["golem"].level + 1)**1.5) {
+						resources["stone"] -= 10000 * (housing["golem"].level + 1)**1.5
+						housing["golem"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade mountain")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(10000 * (housing["golem"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "pit") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Pit", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Demon", 228, 75)
+			ctx.fillText("Owned: " + housing["demon"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["demon"].level, 190, 115)
+
+			buildings.addButton("buy pit", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["demon"].owned + 5)) {
+					resources["stone"] -= 10**(housing["demon"].owned + 5)
+					housing["demon"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy pit")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(housing["demon"].owned + 5) + " Stone", 205, 218)
+			if(housing["demon"].owned > 0) {
+				buildings.addButton("upgrade pit", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 100000 * (housing["demon"].level + 1)**1.5) {
+						resources["stone"] -= 100000 * (housing["demon"].level + 1)**1.5
+						housing["demon"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade pit")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(100000 * (housing["demon"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "nest") {
+			ctx.strokeRect(170, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Nest", 190, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Chance to recruit a Dragon", 300, 75)
+			ctx.fillText("Owned: " + housing["dragon"].owned, 190, 95)
+			ctx.fillText("Level: " + housing["dragon"].level, 190, 115)
+
+			buildings.addButton("buy nest", "Buy", "14px Arial", "black", 205, 185, function() {
+				if(resources["stone"] >= 10**(housing["dragon"].owned + 6)) {
+					resources["stone"] -= 10**(housing["dragon"].owned + 6)
+					housing["dragon"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy nest")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(housing["dragon"].owned + 6) + " Stone", 205, 218)
+			if(housing["dragon"].owned > 0) {
+				buildings.addButton("upgrade nest", "Upgrade", "14px Arial", "black", 320, 185, function() {
+					if(resources["stone"] >= 1000000 * (housing["dragon"].level + 1)**1.5) {
+						resources["stone"] -= 1000000 * (housing["dragon"].level + 1)**1.5
+						housing["dragon"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade nest")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(1000000 * (housing["dragon"].level + 1)**1.5) + " Stone", 320, 218)
+			}
+		} else if(building == "meteor") {
+			ctx.strokeRect(200, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Mage Tower", 220, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Summons meteors", 360, 75)
+			ctx.fillText("Owned: " + support["meteor"].meteors.length, 220, 95)
+			ctx.fillText("Level: " + support["meteor"].level, 220, 115)
+
+			buildings.addButton("buy meteor", "Buy", "14px Arial", "black", 235, 185, function() {
+				if(resources["crystal"] >= 5*10**(support["meteor"].meteors.length + 1)) {
+					resources["crystal"] -= 5*10**(support["meteor"].meteors.length + 1)
+					support["meteor"].meteors.push({
+						cooldown: Date.now()/1000 + 10*Math.random()/devmode,
+						radius: 0
+					})
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy meteor")
+			ctx.font = "14px Arial"
+			ctx.fillText(5*10**(support["meteor"].meteors.length + 1) + " Crystal", 235, 218)
+
+			if(support["meteor"].meteors.length > 0) {
+				buildings.addButton("upgrade meteor", "Upgrade", "14px Arial", "black", 350, 185, function() {
+					if(resources["crystal"] >= 250 * (2**support["meteor"].level - 1)) {
+						resources["crystal"] -= 250 * (2**support["meteor"].level - 1)
+						support["meteor"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade meteor")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(250 * (2**support["meteor"].level - 1)) + " Crystal", 350, 218)
+			}
+		} else if(building == "totem") {
+			ctx.strokeRect(200, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = "black"
+			ctx.fillText("Speed Totem", 220, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Increases movement", 370, 75)
+			ctx.fillText("and attack speed", 370, 90)
+			ctx.fillText("Owned: " + support["totem"].totems.length, 220, 95)
+			ctx.fillText("Level: " + support["totem"].level, 220, 115)
+
+			buildings.addButton("buy totem", "Buy", "14px Arial", "black", 235, 185, function() {
+				if(resources["leaf"] >= 2*10**(support["totem"].totems.length + 1)) {
+					resources["leaf"] -= 2*10**(support["totem"].totems.length + 1)
+					support["totem"].totems.push({
+						x: 500*Math.random() + 150,
+						y: 500*Math.random() + 150
+					})
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy totem")
+			ctx.font = "14px Arial"
+			ctx.fillText(2*10**(support["totem"].totems.length + 1) + " Leaf", 235, 218)
+
+			if(support["totem"].totems.length > 0) {
+				buildings.addButton("upgrade totem", "Upgrade", "14px Arial", "black", 350, 185, function() {
+					if(resources["leaf"] >= 400 * (2**support["totem"].level - 1)) {
+						resources["leaf"] -= 400 * (2**support["totem"].level - 1)
+						support["totem"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade totem")
+				ctx.font = "14px Arial"
+				ctx.fillText(Math.round(400 * (2**support["totem"].level - 1)) + " Leaf", 350, 218)
+			}
+		}
+	}
+
+	if(!pageLoadChecker.buildings) {
 		ctx.clearRect(0, 0, 800, 800)
 		ctx.font = "14px Arial"
 		ctx.fillStyle = "black"
 		buildings.addButton("close", "Close Buildings", "14px Arial", "black", 10, 10, function() {
 			currentPage = "battle"
-			buildingsLoaded = false
+			pageLoadChecker.buildings = false
 		})
 		buildings.drawButton("close")
-		ctx.fillText("Crystal: " + crystal_store + " Stone: " + stone_store + " Leaf: " + leaf_store, 10, 25)
+		ctx.fillText("Crystal: " + Math.round(resources["crystal"]) + " Stone: " + Math.round(resources["stone"]) + " Leaf: " + Math.round(resources["leaf"]), 10, 25)
 
+		ctx.strokeRect(10, 50, 75, 200)
 		ctx.font = "16px Arial"
 		ctx.fillStyle = "black"
-		buildings.addButton("hut", "Hut", "16px Arial", "black", 10, 50, function() {
-			if(stone_store >= 10**(huts + 1)) {
-				stone_store -= 10**(huts + 1)
-				huts += 1
+		buildings.addButton("houses", "Houses", "16px Arial", "black", 10, 50, function() {
+			removeDetailsButtons()
+			buildings.removeButton("meteor")
+			buildings.removeButton("totem")
+			buildingsSubmenus.reset()
+			buildingsSubmenus.showHouses = true
+			pageLoadChecker.buildings = false
+			drawBuildingsScreen()
+		}, 75, 30)
+		buildings.addButton("support", "Support", "16px Arial", "black", 10, 80, function() {
+			removeDetailsButtons()
+			buildings.removeButton("hut")
+			buildings.removeButton("den")
+			buildings.removeButton("cave")
+			buildings.removeButton("mountain")
+			buildings.removeButton("pit")
+			buildings.removeButton("nest")
+			buildingsSubmenus.reset()
+			buildingsSubmenus.showSupport = true
+			pageLoadChecker.buildings = false
+			drawBuildingsScreen()
+		}, 75, 30)
+		buildings.drawButton("houses")
+		ctx.beginPath()
+		ctx.moveTo(10, 80)
+		ctx.lineTo(85, 80)
+		ctx.stroke()
+		buildings.drawButton("support")
+		ctx.moveTo(10, 110)
+		ctx.lineTo(85, 110)
+		ctx.stroke()
 
-				buildingsLoaded = false
+		if(buildingsSubmenus.showHouses) {
+			showBuildingDetails(buildingsSubmenus.showHouses)
+		} else if(buildingsSubmenus.showSupport) {
+			showBuildingDetails(buildingsSubmenus.showSupport)
+		}
+
+		if(buildingsSubmenus.showHouses) {
+			buildings.addButton("hut", "Hut", "16px Arial", "black", 85, 50, function() {
+				ctx.clearRect(0, 0, 800, 800)
+				pageLoadChecker.buildings = false
+				buildingsSubmenus.showHouses = "hut"
 				drawBuildingsScreen()
+			}, 85, 30)
+			if(highestArea >= 2) {
+				buildings.addButton("den", "Den", "16px Arial", "black", 85, 80, function() {
+					ctx.clearRect(0, 0, 800, 800)
+					pageLoadChecker.buildings = false
+					buildingsSubmenus.showHouses = "den"
+					drawBuildingsScreen()
+				}, 85, 30)
 			}
-		})
-		buildings.drawButton("hut")
-		ctx.fillText(" - Cost: " + 10**(huts + 1) + " Stone", 35, 50)
-		ctx.font = "12px Arial"
-		ctx.fillText("Recruits a kobold", 25, 64)
-
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		buildings.addButton("den", "Den", "16px Arial", "black", 10, 85, function() {
-			if(stone_store >= 10**(dens + 2)) {
-				stone_store -= 10**(dens + 2)
-				dens += 1
-
-				buildingsLoaded = false
-				drawBuildingsScreen()
+			if(highestArea >= 3) {
+				buildings.addButton("cave", "Cave", "16px Arial", "black", 85, 110, function() {
+					ctx.clearRect(0, 0, 800, 800)
+					pageLoadChecker.buildings = false
+					buildingsSubmenus.showHouses = "cave"
+					drawBuildingsScreen()
+				}, 85, 30)
 			}
-		})
-		buildings.drawButton("den")
-		ctx.fillText(" - Cost: " + 10**(dens + 2) + " Stone", 39, 85)
-		ctx.font = "12px Arial"
-		ctx.fillText("Recruits a beast", 25, 99)
-
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		buildings.addButton("cave", "Cave", "16px Arial", "black", 10, 120, function() {
-			if(stone_store >= 10**(caves + 3)) {
-				stone_store -= 10**(caves + 3)
-				caves += 1
-
-				buildingsLoaded = false
-				drawBuildingsScreen()
+			if(highestArea >= 4) {
+				buildings.addButton("mountain", "Mountain", "16px Arial", "black", 85, 140, function() {
+					ctx.clearRect(0, 0, 800, 800)
+					pageLoadChecker.buildings = false
+					buildingsSubmenus.showHouses = "mountain"
+					drawBuildingsScreen()
+				}, 85, 30)
 			}
-		})
-		buildings.drawButton("cave")
-		ctx.fillText(" - Cost: " + 10**(caves + 3) + " Stone", 48, 120)
-		ctx.font = "12px Arial"
-		ctx.fillText("Recruits a giant", 25, 134)
-
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		buildings.addButton("meteor", "Mage Tower", "16px Arial", "black", 10, 155, function() {
-			if(crystal_store >= 5*10**(meteors.length + 1)) {
-				crystal_store -= 5*10**(meteors.length + 1)
-				meteors.push({
-					cooldown: Date.now()/1000 + 10*Math.random()/devmode,
-					radius: 0
-				})
-
-				buildingsLoaded = false
-				drawBuildingsScreen()
+			if(highestArea >= 5) {
+				buildings.addButton("pit", "Pit", "16px Arial", "black", 85, 170, function() {
+					ctx.clearRect(0, 0, 800, 800)
+					pageLoadChecker.buildings = false
+					buildingsSubmenus.showHouses = "pit"
+					drawBuildingsScreen()
+				}, 85, 30)
 			}
-		})
-		buildings.drawButton("meteor")
-		ctx.fillText(" - Cost: " + 5*10**(meteors.length + 1) + " Crystal", 99, 155)
-		ctx.font = "12px Arial"
-		ctx.fillText("Summons meteors", 25, 169)
-
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		buildings.addButton("totem", "Speed Totem", "16px Arial", "black", 10, 190, function() {
-			if(leaf_store >= 2*10**(totems.length + 1)) {
-				leaf_store -= 2*10**(totems.length + 1)
-				totems.push({
-					x: 500*Math.random() + 150,
-					y: 500*Math.random() + 150
-				})
-
-				buildingsLoaded = false
-				drawBuildingsScreen()
+			if(highestArea >= 6) {
+				buildings.addButton("nest", "Nest", "16px Arial", "black", 85, 200, function() {
+					ctx.clearRect(0, 0, 800, 800)
+					pageLoadChecker.buildings = false
+					buildingsSubmenus.showHouses = "nest"
+					drawBuildingsScreen()
+				}, 85, 30)
 			}
-		})
-		buildings.drawButton("totem")
-		ctx.fillText(" - Cost: " + 2*10**(totems.length + 1) + " Leaf", 105, 190)
-		ctx.font = "12px Arial"
-		ctx.fillText("Grants attack speed when in range", 25, 204)
+			ctx.strokeRect(85, 50, 85, 200)
+			buildings.drawButton("hut")
+			ctx.beginPath()
+			ctx.moveTo(85, 80)
+			ctx.lineTo(170, 80)
+			ctx.stroke()
+			if (highestArea >= 2) {
+				buildings.drawButton("den")
+				ctx.beginPath()
+				ctx.moveTo(85, 110)
+				ctx.lineTo(170, 110)
+				ctx.stroke()
+			}
+			if (highestArea >= 3) {
+				buildings.drawButton("cave")
+				ctx.beginPath()
+				ctx.moveTo(85, 140)
+				ctx.lineTo(170, 140)
+				ctx.stroke()
+			}
+			if (highestArea >= 4) {
+				buildings.drawButton("mountain")
+				ctx.beginPath()
+				ctx.moveTo(85, 170)
+				ctx.lineTo(170, 170)
+				ctx.stroke()
+			}
+			if (highestArea >= 5) {
+				buildings.drawButton("pit")
+				ctx.beginPath()
+				ctx.moveTo(85, 200)
+				ctx.lineTo(170, 200)
+				ctx.stroke()
+			}
+			if (highestArea >= 6) {
+				buildings.drawButton("nest")
+				ctx.beginPath()
+				ctx.moveTo(85, 230)
+				ctx.lineTo(170, 230)
+				ctx.stroke()
+			}
+		} else if(buildingsSubmenus.showSupport) {
+			buildings.addButton("meteor", "Mage Tower", "16px Arial", "black", 85, 50, function() {
+				ctx.clearRect(0, 0, 800, 800)
+				pageLoadChecker.buildings = false
+				buildingsSubmenus.showSupport = "meteor"
+				showBuildingDetails("meteor")
+			}, 115, 30)
+			buildings.addButton("totem", "Speed Totem", "16px Arial", "black", 85, 80, function() {
+				ctx.clearRect(0, 0, 800, 800)
+				pageLoadChecker.buildings = false
+				buildingsSubmenus.showSupport = "totem"
+				showBuildingDetails("totem")
+			}, 115, 30)
+			ctx.strokeRect(85, 50, 115, 200)
+			buildings.drawButton("meteor")
+			ctx.beginPath()
+			ctx.moveTo(80, 80)
+			ctx.lineTo(200, 80)
+			ctx.stroke()
+			buildings.drawButton("totem")
+			ctx.beginPath()
+			ctx.moveTo(85, 110)
+			ctx.lineTo(200, 110)
+			ctx.stroke()
+		}
 	}
-	buildingsLoaded = true
+	pageLoadChecker.buildings = true
+}
+
+function drawQuests() {
+	ctx.clearRect(0, 0, 800, 800)
+	if(!pageLoadChecker.quests) {
+		quests.addButton("close", "Close Quests", "14px Arial", "black", 10, 10, function() {
+			currentPage = "battle"
+			pageLoadChecker.quests = false
+		})
+		quests.addButton("buy speed", "10 Points", "14px Arial", "black", 370, 356, function() {
+			if(questStore.quest_points > 10) {
+				quests.removeButton("buy speed")
+				questStore.quest_points -= 10
+				questStore["speed"].bought = true
+				devmode *= 1.1
+				pageLoadChecker.quests = false
+				drawQuests()
+			}
+		}, 75, 18)
+		if(!questStore["craftAll"].bought) {
+			quests.addButton("buy craftAll", "3 Points", "14px Arial", "black", 370, 376, function() {
+				if(questStore.quest_points > 3) {
+					quests.removeButton("buy craftAll")
+					questStore.quest_points -= 3
+					questStore["craftAll"].bought = true
+					pageLoadChecker.quests = false
+					drawQuests()
+				}
+			}, 75, 18)
+		}
+		if(!questStore["reset10"].bought) {
+			quests.addButton("buy reset10", "6 Points", "14px Arial", "black", 370, 396, function() {
+				if(questStore.quest_points > 5) {
+					quests.removeButton("buy reset10")
+					questStore.quest_points -= 5
+					questStore["reset10"].bought = true
+					pageLoadChecker.quests = false
+					drawQuests()
+				}
+			}, 75, 18)
+		}
+		if(!questStore["meleeSwap"].bought) {
+			quests.addButton("buy meleeSwap", "5 Points", "14px Arial", "black", 370, 416, function() {
+				quests.removeButton("buy meleeSwap")
+				if(questStore.quest_points > 9) {
+					questStore.quest_points -= 9
+					questStore["meleeSwap"].bought = true
+					pageLoadChecker.quests = false
+					drawQuests()
+				}
+			}, 75, 18)
+		}
+
+		if(questStore["reset10"].bought) {
+			let x
+			if(questStore["reset10"].toggled) {
+				x = "x"
+			} else {
+				x = "  "
+			}
+			quests.addButton("toggle reset10", x, "14px Arial", "black", 599, 398, function() {
+				questStore["reset10"].toggled = !questStore["reset10"].toggled
+				pageLoadChecker.quests = false
+				drawQuests()
+			}, 14, 14)
+		}
+		if(questStore["meleeSwap"].bought) {
+			let x
+			if(questStore["meleeSwap"].toggled) {
+				x = "x"
+			} else {
+				x = "  "
+			}
+			quests.addButton("toggle meleeSwap", x, "14px Arial", "black", 622, 418, function() {
+				questStore["meleeSwap"].toggled = !questStore["meleeSwap"].toggled
+				if(questStore["meleeSwap"].toggled && (inventory[team[0].weapon].type == "bow" || inventory[team[0].weapon].type == "magic")) {
+					if(inventory["greatsword"]) {
+						team[0].tempWeapon = "greatsword"
+					} else if(inventory["longsword"]) {
+						team[0].tempWeapon = "longsword"
+					} else if(inventory["shortsword"]) {
+						team[0].tempWeapon = "shortsword"
+					}
+				} else if(!questStore["meleeSwap"].toggled && (inventory[team[0].tempWeapon].type == "bow" || inventory[team[0].tempWeapon].type == "magic")) {
+					team[0].weapon = team[0].tempWeapon
+					team[0].tempWeapon = ""
+				}
+				pageLoadChecker.quests = false
+				drawQuests()
+			}, 14, 14)
+		}
+	}
+	quests.drawButton("close")
+
+	ctx.font = "16px Arial"
+	ctx.fillStyle = "black"
+	ctx.fillText("Kobold", 10, 50)
+	ctx.beginPath()
+	ctx.moveTo(10, 52)
+	ctx.lineTo(245, 52)
+	ctx.stroke()
+	ctx.font = "14px Arial"
+	ctx.fillText("- Kill " + quests_list["kobold"]["kc"].goal + " Kobolds (Progress " + quests_list["kobold"]["kc"].progress + ")", 10, 70)
+	ctx.fillText("Reward: " + quests_list["kobold"]["kc"].reward + " Rebirth Points", 20, 90)
+	ctx.fillText("- Kill " + quests_list["kobold"]["megas"].goal + " Mega Kobolds (Progress " + quests_list["kobold"]["megas"].progress + ")", 10, 110)
+	ctx.fillText("Reward: " + quests_list["kobold"]["megas"].reward + " Rebirth Points", 20, 130)
+	ctx.fillText("- Reach wave " + quests_list["kobold"]["waves"].goal + " (Progress " + quests_list["kobold"]["waves"].progress + ")", 10, 150)
+	ctx.fillText("Reward: " + quests_list["kobold"]["waves"].reward + " Rebirth Points", 20, 170)
+
+	if(highestArea >= 2) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Beast", 260, 50)
+		ctx.beginPath()
+		ctx.moveTo(260, 52)
+		ctx.lineTo(495, 52)
+		ctx.stroke()
+		ctx.font = "14px Arial"
+		ctx.fillText("- Kill " + quests_list["beast"]["kc"].goal + " Beasts (Progress " + quests_list["beast"]["kc"].progress + ")", 260, 70)
+		ctx.fillText("Reward: " + quests_list["beast"]["kc"].reward + " Rebirth Points", 270, 90)
+		ctx.fillText("- Kill " + quests_list["beast"]["megas"].goal + " Mega Beasts (Progress " + quests_list["beast"]["megas"].progress + ")", 260, 110)
+		ctx.fillText("Reward: " + quests_list["beast"]["megas"].reward + " Rebirth Points", 270, 130)
+		ctx.fillText("- Reach wave " + quests_list["beast"]["waves"].goal + " (Progress " + quests_list["beast"]["waves"].progress + ")", 260, 150)
+		ctx.fillText("Reward: " + quests_list["beast"]["waves"].reward + " Rebirth Points", 270, 170)
+	}
+	if(highestArea >= 3) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Giant", 510, 50)
+		ctx.beginPath()
+		ctx.moveTo(510, 52)
+		ctx.lineTo(745, 52)
+		ctx.stroke()
+		ctx.font = "14px Arial"
+		ctx.fillText("- Kill " + quests_list["giant"]["kc"].goal + " Giants (Progress " + quests_list["giant"]["kc"].progress + ")", 510, 70)
+		ctx.fillText("Reward: " + quests_list["giant"]["kc"].reward + " Rebirth Points", 520, 90)
+		ctx.fillText("- Kill " + quests_list["giant"]["megas"].goal + " Mega Giants (Progress " + quests_list["giant"]["megas"].progress + ")", 510, 110)
+		ctx.fillText("Reward: " + quests_list["giant"]["megas"].reward + " Rebirth Points", 520, 130)
+		ctx.fillText("- Reach wave " + quests_list["giant"]["waves"].goal + " (Progress " + quests_list["giant"]["waves"].progress + ")", 510, 150)
+		ctx.fillText("Reward: " + quests_list["giant"]["waves"].reward + " Rebirth Points", 520, 170)
+	}
+	if(highestArea >= 4) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Golem", 10, 200)
+		ctx.beginPath()
+		ctx.moveTo(10, 202)
+		ctx.lineTo(245, 202)
+		ctx.stroke()
+		ctx.font = "14px Arial"
+		ctx.fillText("- Kill " + quests_list["golem"]["kc"].goal + " Golems (Progress " + quests_list["golem"]["kc"].progress + ")", 10, 220)
+		ctx.fillText("Reward: " + quests_list["golem"]["kc"].reward + " Rebirth Points", 20, 240)
+		ctx.fillText("- Kill " + quests_list["golem"]["megas"].goal + " Mega Golems (Progress " + quests_list["golem"]["megas"].progress + ")", 10, 260)
+		ctx.fillText("Reward: " + quests_list["golem"]["megas"].reward + " Rebirth Points", 20, 280)
+		ctx.fillText("- Reach wave " + quests_list["golem"]["waves"].goal + " (Progress " + quests_list["golem"]["waves"].progress + ")", 10, 300)
+		ctx.fillText("Reward: " + quests_list["golem"]["waves"].reward + " Rebirth Points", 20, 320)
+	}
+	if(highestArea >= 5) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Demon", 260, 200)
+		ctx.beginPath()
+		ctx.moveTo(260, 202)
+		ctx.lineTo(495, 202)
+		ctx.stroke()
+		ctx.font = "14px Arial"
+		ctx.fillText("- Kill " + quests_list["demon"]["kc"].goal + " Demons (Progress " + quests_list["demon"]["kc"].progress + ")", 260, 220)
+		ctx.fillText("Reward: " + quests_list["demon"]["kc"].reward + " Rebirth Points", 270, 240)
+		ctx.fillText("- Kill " + quests_list["demon"]["megas"].goal + " Mega Demons (Progress " + quests_list["demon"]["megas"].progress + ")", 260, 260)
+		ctx.fillText("Reward: " + quests_list["demon"]["megas"].reward + " Rebirth Points", 270, 280)
+		ctx.fillText("- Reach wave " + quests_list["demon"]["waves"].goal + " (Progress " + quests_list["demon"]["waves"].progress + ")", 260, 300)
+		ctx.fillText("Reward: " + quests_list["demon"]["waves"].reward + " Rebirth Points", 270, 320)
+	}
+	if(highestArea >= 6) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Dragon", 10, 200)
+		ctx.beginPath()
+		ctx.moveTo(510, 202)
+		ctx.lineTo(745, 202)
+		ctx.stroke()
+		ctx.font = "14px Arial"
+		ctx.fillText("- Kill " + quests_list["dragon"]["kc"].goal + " Dragons (Progress " + quests_list["dragon"]["kc"].progress + ")", 510, 220)
+		ctx.fillText("Reward: " + quests_list["dragon"]["kc"].reward + " Rebirth Points", 520, 240)
+		ctx.fillText("- Kill " + quests_list["dragon"]["megas"].goal + " Mega Dragons (Progress " + quests_list["dragon"]["megas"].progress + ")", 510, 260)
+		ctx.fillText("Reward: " + quests_list["dragon"]["megas"].reward + " Rebirth Points", 520, 280)
+		ctx.fillText("- Reach wave " + quests_list["dragon"]["waves"].goal + " (Progress " + quests_list["dragon"]["waves"].progress + ")", 510, 300)
+		ctx.fillText("Reward: " + quests_list["dragon"]["waves"].reward + " Rebirth Points", 520, 320)
+	}
+	ctx.font = "16px Arial"
+	ctx.fillStyle = "black"
+	ctx.fillText("Misc", 10, 350)
+	ctx.beginPath()
+	ctx.moveTo(10, 352)
+	ctx.lineTo(245, 352)
+	ctx.stroke()
+	ctx.font = "14px Arial"
+	ctx.fillText("Reward: 1.25x game speed", 20, 470)
+	ctx.fillText("- Craft 10,000 items (Progress " + quests_list["misc"]["craft"].progress + ")", 10, 370)
+	ctx.fillText("Reward: 10% crafting effectiveness", 20, 390)
+	ctx.fillText("- Kill 4 enemies with a single meteor (Progress " + quests_list["misc"]["meteor"].progress + ")", 10, 410)
+	ctx.fillText("Reward: Iron ring", 20, 430)
+	ctx.fillText("- Reach Golems without weapons or armor", 10, 490)
+	ctx.fillText("Reward: Base stats increased dramatically", 20, 510)
+	let delta, hr, min, sec
+	if(!quests_list["misc"]["time"].completed) {
+		delta = Math.abs(Date.now()/1000 - quests_list["misc"]["time"].start)
+		hr = Math.floor((Date.now()/1000 - quests_list["misc"]["time"].start)/3600)
+		min = Math.floor((delta - hr*3600)/60)
+		sec = Math.round(delta - hr*3600 - min*60)
+	} else {
+		hr = 12
+		min = 0
+		sec = 0
+	}
+	ctx.font = "14px Arial"
+	ctx.fillText("- Stay in an area for 12 hours (Progress " + hr + "h" + min + "m" + sec + "s)", 10, 450)
+
+	ctx.font = "16px Arial"
+	ctx.fillStyle = "black"
+	ctx.fillText("Quest Points: " + questStore.quest_points, 375, 350)
+	ctx.beginPath()
+	ctx.moveTo(375, 352)
+	ctx.lineTo(610, 352)
+	ctx.stroke()
+	ctx.font = "14px Arial"
+	quests.drawButton("buy speed")
+	ctx.fillText("Additional 1.1x game speed", 450, 370)
+	if(questStore["craftAll"].bought) {
+	 ctx.strokeRect(370, 377, 75, 18)
+	 ctx.font = "14px Arial"
+	 ctx.fillStyle = "black"
+	 ctx.fillText("Bought!", 382, 390)
+	} else {
+	 quests.drawButton("buy craftAll")
+	}
+	ctx.fillText("Craft all button", 450, 390)
+	if(questStore["reset10"].bought) {
+	 ctx.strokeRect(370, 397, 75, 18)
+	 ctx.font = "14px Arial"
+	 ctx.fillStyle = "black"
+	 ctx.fillText("Bought!", 382, 410)
+
+	 quests.drawButton("toggle reset10")
+	} else {
+	 quests.drawButton("buy reset10")
+	}
+	ctx.fillText("Reset area at Stage 10", 450, 410)
+	if(questStore["meleeSwap"].bought) {
+	 ctx.strokeRect(370, 417, 75, 18)
+	 ctx.font = "14px Arial"
+	 ctx.fillStyle = "black"
+	 ctx.fillText("Bought!", 382, 430)
+
+	 quests.drawButton("toggle meleeSwap")
+	} else {
+	 quests.drawButton("buy meleeSwap")
+	}
+	ctx.fillText("Melee swap when in range", 450, 430)
+
+	pageLoadChecker.quests = true
 }
 
 function drawStats() {
-	if (!statsLoaded) {
+	if (!pageLoadChecker.stats) {
 		ctx.clearRect(0, 0, 800, 800)
 		stats.addButton("close", "Close Stats", "14px Arial", "black", 10, 10, function() {
 			currentPage = "battle"
-			statsLoaded = false
+			pageLoadChecker.stats = false
 		})
 		stats.drawButton("close")
 
 		ctx.font = "16px Arial"
 		ctx.fillStyle = "black"
-		ctx.fillText("Base Attack: " + team[0].attack, 10, 50)
-		ctx.fillText("Base Defence: " + team[0].defence, 10, 70)
-		ctx.fillText("Base Speed: " + team[0].speed, 10, 90)
+		ctx.fillText("Attack: " + team[0].attack.toFixed(1), 10, 50)
+		ctx.fillText("Defence: " + team[0].defence.toFixed(1), 10, 70)
+		ctx.fillText("Speed: " + team[0].speed, 10, 90)
+		if(templeRewards["wisdom"]) {
+			ctx.fillText("Experience: " + team[0].experience, 10, 110)
+		}
 
 		stats.addButton("hero+", "+", "16px Arial", "black", 10, 170, function() {
-			if(rebirth_points >= rebirth["hero"].cost) {
+			if(rebirth_points >= rebirth["hero"].cost && rebirth["hero"].level < 3) {
 				rebirth_points -= rebirth["hero"].cost
-				rebirth["hero"].cost = 2*rebirth["hero"].cost
+				rebirth["hero"].cost = 3*rebirth["hero"].cost
 				rebirth["hero"].level += 1
 
-				team[0].attack += 2*rebirth["hero"].level
-				team[0].defence += 5*rebirth["hero"].level
-				team[0].speed += 2
+				if(rebirth["hero"].level >= 3) {
+					rebirth["hero"].cost = "MAX"
+				}
+
+				team[0].baseAttack += 2*rebirth["hero"].level
+				team[0].attack = team[0].baseAttack + Math.sqrt(team[0].experience)/2
+				team[0].baseDefence += 5*rebirth["hero"].level
+				team[0].defence += team[0].baseDefence + Math.sqrt(team[0].experience)
+				team[0].speed += 1.5
 
 				rebirthResets()
 				spawnEnemies()
 
-				statsLoaded = false
+				pageLoadChecker.stats = false
 				drawStats()
 			}
 		})
@@ -784,7 +1932,7 @@ function drawStats() {
 				rebirthResets()
 				spawnEnemies()
 
-				statsLoaded = false
+				pageLoadChecker.stats = false
 				drawStats()
 			}
 		})
@@ -798,7 +1946,7 @@ function drawStats() {
 				rebirthResets()
 				spawnEnemies()
 
-				statsLoaded = false
+				pageLoadChecker.stats = false
 				drawStats()
 			}
 		})
@@ -812,7 +1960,7 @@ function drawStats() {
 				rebirthResets()
 				spawnEnemies()
 
-				statsLoaded = false
+				pageLoadChecker.stats = false
 				drawStats()
 			}
 		})
@@ -823,7 +1971,51 @@ function drawStats() {
 		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
 		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
 	}
-	statsLoaded = true
+	pageLoadChecker.stats = true
+}
+
+function drawTemple() {
+	if (!pageLoadChecker.temple) {
+		ctx.clearRect(0, 0, 800, 800)
+		temple.addButton("close", "Close Temple", "14px Arial", "black", 10, 10, function() {
+			currentPage = "battle"
+			pageLoadChecker.temple = false
+		})
+		temple.drawButton("close")
+
+		temple.addButton("ring", "Pillar: Gold Ring", "14px Arial", "black", 10, 70, function() {
+			inventory["gold ring"] = drops["gold ring"]
+			team[0].rings.push("gold ring")
+			templeRewards["ring"] = 2
+
+			templeResets()
+			spawnEnemies()
+			currentPage = "battle"
+		}, 150, 40)
+		temple.addButton("loot", "Pillar: Double Loot", "14px Arial", "black", 200, 70, function() {
+			templeRewards["loot"] = 2
+
+			templeResets()
+			spawnEnemies()
+			currentPage = "battle"
+		}, 150, 40)
+		temple.addButton("wisdom", "Pillar: Heroic Wisdom", "14px Arial", "black", 390, 70, function() {
+			templeRewards["wisdom"] = true
+
+			templeResets()
+			spawnEnemies()
+			currentPage = "battle"
+		}, 150, 40)
+
+		ctx.fillText("Choose wisely..", 10, 50)
+		temple.drawButton("ring")
+		temple.drawButton("loot")
+		temple.drawButton("wisdom")
+
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText("Challenges: LOCKED", 10, 150)
+	}
 }
 
 function drawBolt() {
@@ -832,9 +2024,11 @@ function drawBolt() {
 	if(inventory[team[0].weapon].type == "bow"){
 		ctx.fillStyle = "black"
 		symbol = "|"
-	} else {
+	} else if(inventory[team[0].weapon].type == "magic"){
 		ctx.fillStyle = "red"
 		symbol = "o"
+	} else {
+		bolts = []
 	}
 	for (i=0; i<bolts.length; i++) {
 		ctx.fillText(symbol, bolts[i].x, bolts[i].y)
@@ -842,11 +2036,11 @@ function drawBolt() {
 }
 
 function drawTotems() {
-	for(i=0; i<totems.length; i++) {
+	for(i=0; i<support["totem"].totems.length; i++) {
 		ctx.font = "16px Arial"
 		ctx.fillStyle = "green"
-		ctx.fillText("\\|/", totems[i].x, totems[i].y - 8)
-		ctx.fillText("/|\\", totems[i].x, totems[i].y + 8)
+		ctx.fillText("\\|/", support["totem"].totems[i].x, support["totem"].totems[i].y - 8)
+		ctx.fillText("/|\\", support["totem"].totems[i].x, support["totem"].totems[i].y + 8)
 	}
 }
 
@@ -859,14 +2053,20 @@ function spawnMeteor(x, y, radius) {
 var main = function() {
 	function createCanvas() {
 		if(currentPage == "inv"){
-			infoLoaded = false
+			pageLoadChecker.info = false
 			drawInventory()
 		} else if(currentPage == "buildings") {
-			infoLoaded = false
+			pageLoadChecker.info = false
 			drawBuildingsScreen()
 		} else if(currentPage == "stats") {
-			infoLoaded = false
+			pageLoadChecker.info = false
 			drawStats()
+		} else if(currentPage == "quests") {
+			pageLoadChecker.info = false
+			drawQuests()
+		} else if(currentPage == "temple") {
+			pageLoadChecker.info = false
+			drawTemple()
 		} else {
 			ctx.clearRect(0, 0, 800, 800)
 			drawInfo()
@@ -881,35 +2081,59 @@ var main = function() {
 	}
 
 	function update(time) {
-		if (currentPage == "battle") {
-			for(i=0; i<meteors.length; i++) {
-				if(meteors[i].cooldown < Date.now()/1000) {
-					if(meteors[i].radius == 0) {
-						meteors[i].radius = 64
-						meteors[i].x = 600*Math.random() + 100
-						meteors[i].y = 400*Math.random()
-					} else if(meteors[i].radius > 128){
-						meteors[i].radius = 0
-						meteors[i].cooldown = Date.now()/1000 + 10*Math.random()/devmode
-						var deaths = []
-						for(j=0; j<enemies.length; j++) {
-							if(enemies[j].x < meteors[i].x + 128/4 && enemies[j].x > meteors[i].x - 128/4
-								&& enemies[j].y < meteors[i].y + 128/4 && enemies[j].y > meteors[i].y - 128/4) {
-								enemies[j].health -= 25
+		if(quests_list["misc"]["time"].completed != true) {
+			if(Date.now()/1000 > quests_list["misc"]["time"].start + 43200) {
+				quests_list["misc"]["time"].completed = true
+				devmode = 1.25
+				messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+				questStore.quest_points += 1
+			}
+		}
+		for(i=0; i<support["meteor"].meteors.length; i++) {
+			if(support["meteor"].meteors[i].cooldown < Date.now()/1000) {
+				if(support["meteor"].meteors[i].radius == 0) {
+					support["meteor"].meteors[i].radius = 64
+					support["meteor"].meteors[i].x = 600*Math.random() + 100
+					support["meteor"].meteors[i].y = 400*Math.random()
 
-								if(enemies[j].health <= 0) {
-									deaths.push(j)
-								}
+					if(team[0].rings.includes("iron ring")) {
+						let xdif = support["meteor"].meteors[i].x - team[0].x
+						let ydif = support["meteor"].meteors[i].y - team[0].y
+						angle = Math.atan2(ydif, xdif)
+
+						support["meteor"].meteors[i].x += 100*Math.cos(angle)
+						support["meteor"].meteors[i].y += 100*Math.sin(angle)
+					}
+				} else if(support["meteor"].meteors[i].radius > 128){
+					support["meteor"].meteors[i].radius = 0
+					support["meteor"].meteors[i].cooldown = Date.now()/1000 + 10*Math.random()/devmode
+					var deaths = []
+					for(j=0; j<enemies.length; j++) {
+						if(enemies[j].x < support["meteor"].meteors[i].x + 128/4 && enemies[j].x > support["meteor"].meteors[i].x - 128/4
+							&& enemies[j].y < support["meteor"].meteors[i].y + 128/4 && enemies[j].y > support["meteor"].meteors[i].y - 128/4) {
+							enemies[j].health -= 25*(support["meteor"].level + 1)
+
+							if(enemies[j].health <= 0) {
+								deaths.push(j)
 							}
 						}
-						for(j=0; j<deaths.length; j++) {
-							deaths.sort((a, b) => b - a)
-							handleDeath(deaths[j])
-						}
-					} else {
-						spawnMeteor(meteors[i].x - meteors[i].radius/3, meteors[i].y + meteors[i].radius/3, meteors[i].radius)
-						meteors[i].radius += 16
 					}
+					if(deaths.length > quests_list["misc"]["meteor"].progress) {
+						quests_list["misc"]["meteor"].progress = deaths.length
+						if(deaths.length >= 4) {
+							inventory["iron ring"] = Object.assign({}, drops["iron ring"])
+							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+							questStore.quest_points += 1
+						}
+					}
+					for(j=0; j<deaths.length; j++) {
+						deaths.sort((a, b) => b - a)
+						handleDeath(deaths[j])
+					}
+				} else {
+					let me = support["meteor"].meteors[i]
+					spawnMeteor(me.x - me.radius/3, me.y + me.radius/3, me.radius)
+					support["meteor"].meteors[i].radius += 16
 				}
 			}
 		}
@@ -922,120 +2146,146 @@ var main = function() {
 					bolts[i].targetid -= 1
 				}
 			}
+			let mega_multiplier = 1
+			if(enemies[closest_enemy].mega == true) {
+				mega_multiplier = 100
+			}
+			let reward = species[enemies[closest_enemy].species].reward
 			if(enemies[closest_enemy].element == "crystal") {
-				crystal_store += species[enemies[closest_enemy].species].reward*(rebirth["resource"].level + 1)
+				resources["crystal"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
 			} else if(enemies[closest_enemy].element == "stone") {
-				stone_store += species[enemies[closest_enemy].species].reward*(rebirth["resource"].level + 1)
+				resources["stone"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
 			} else if(enemies[closest_enemy].element == "leaf") {
-				leaf_store += species[enemies[closest_enemy].species].reward*(rebirth["resource"].level + 1)
+				resources["leaf"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
+			}
+			if(templeRewards["wisdom"]) {
+				team[0].experience += reward
+				team[0].attack = team[0].baseAttack + Math.sqrt(team[0].experience)/2
+				team[0].defence = team[0].baseDefence + Math.sqrt(team[0].experience)
 			}
 
 			let roll = 1000*Math.random()
-			if(enemies[closest_enemy].species == "kobold" && huts_filled < huts) {
-				if (roll < 550 + 50*rebirth["ally"].level + 50*huts) {
-					huts_filled += 1
-					messages.push({text: "A kobold joined you", timeout: Date.now()/1000 + 3})
-					team.push({name: "kobold",
-											health: species["kobold"].health * (1.5**rebirth["ally"].level),
-											defence: species["kobold"].defence,
-											cooldown: Date.now()/1000,
-											x: enemies[closest_enemy].x,
-											y: enemies[closest_enemy].y})
-				}
-			} else if(enemies[closest_enemy].species == "beast" && dens_filled < dens) {
-				if (roll < 450 + 50*rebirth["ally"].level + 50*dens) {
-					dens_filled += 1
-					messages.push({text: "A beast joined you", timeout: Date.now()/1000 + 3})
-					team.push({name: "beast",
-											health: species["beast"].health * (1.5**rebirth["ally"].level),
-											defence: species["beast"].defence,
-											cooldown: Date.now()/1000,
-											x: enemies[closest_enemy].x,
-											y: enemies[closest_enemy].y})
-				}
-			} else if(enemies[closest_enemy].species == "giant" && caves_filled < caves) {
-				if (roll < 350 + 50*rebirth["ally"].level + 50*caves) {
-					caves_filled += 1
-					messages.push({text: "A giant joined you", timeout: Date.now()/1000 + 3})
-					team.push({name: "giant",
-											health: species["giant"].health * (1.5**rebirth["ally"].level),
-											defence: species["giant"].defence,
-											cooldown: Date.now()/1000,
-											x: enemies[closest_enemy].x,
-											y: enemies[closest_enemy].y})
+			let index = species_tags.indexOf(enemies[closest_enemy].species)
+			let name = species_tags[index]
+			if(enemies[closest_enemy].mega == true) {
+				quests_list[name]["megas"].progress += 1
+
+				if(quests_list[name]["megas"].progress >= quests_list[name]["megas"].goal) {
+					rebirth_points += quests_list[name]["megas"].reward
+					quests_list[name]["megas"].goal *= 5
+					quests_list[name]["megas"].reward *= 2
+					messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+					questStore.quest_points += 1
 				}
 			}
-			var droproll = 1000*Math.random()
-			var item_dropped
-			if(droproll < 25 && currentZone >= 3) {
-				roll = Math.floor(3*Math.random())
+
+			quests_list[name]["kc"].progress += 1
+			if(quests_list[name]["kc"].progress >= quests_list[name]["kc"].goal) {
+				rebirth_points += quests_list[name]["kc"].reward
+				quests_list[name]["kc"].goal *= 5
+				quests_list[name]["kc"].reward *= 2
+				messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+				questStore.quest_points += 1
+			}
+
+			if (housing[name].filled < housing[name].owned && roll < 550 - index*100 + 50*rebirth["ally"].level + 50*housing[name].owned) {
+				housing[name].filled += 1
+				messages.push({text: "A " + name + " joined you", timeout: Date.now()/1000 + 3})
+				team.push({name: name,
+										health: species[name].health * (1.5**rebirth["ally"].level) * (housing[name].level + 9)/10,
+										defence: species[name].defence,
+										cooldown: Date.now()/1000,
+										x: enemies[closest_enemy].x,
+										y: enemies[closest_enemy].y})
+			}
+			let droproll = 1000*Math.random()
+			let item_dropped = ""
+			if(droproll < 50 + (currentArea - 5)*50 && currentArea >= 5) {
+				roll = Math.floor(6*Math.random())
 				if(roll == 0) {
 					item_dropped = "greatsword"
 				} else if(roll == 1) {
 					item_dropped = "greatbow"
-				} else {
+				} else if(roll == 2){
 					item_dropped = "tome"
+				} else if(roll == 3) {
+					item_dropped = "full helm"
+				} else if(roll == 4) {
+					item_dropped = "platebody"
+				} else if(roll == 5){
+					item_dropped = "platelegs"
 				}
-			} else if(droproll < 50 && currentZone >= 3) {
-				roll = Math.floor(3*Math.random())
+			} else if(droproll < 150 + (currentArea - 3)*50 && currentArea >= 3) {
+				roll = Math.floor(6*Math.random())
 				if(roll == 0) {
-					var item_dropped = "full helm"
+					item_dropped = "longsword"
 				} else if(roll == 1) {
-					var item_dropped = "platebody"
-				} else {
-					var item_dropped = "platelegs"
+					item_dropped = "longbow"
+				} else if(roll == 2){
+					item_dropped = "battlestaff"
+				} else if(roll == 3) {
+					item_dropped = "med helm"
+				} else if(roll == 4) {
+					item_dropped = "chain torso"
+				} else if(roll == 5) {
+					item_dropped = "chainskirt"
 				}
-			} else if(droproll < 100 && currentZone >= 2) {
-				roll = Math.floor(3*Math.random())
+			}  else if(droproll < 350 && currentArea >= 1) {
+				roll = Math.floor(6*Math.random())
 				if(roll == 0) {
-					var item_dropped = "longsword"
+					item_dropped = "shortsword"
 				} else if(roll == 1) {
-					var item_dropped = "longbow"
-				} else {
-					var item_dropped = "battlestaff"
-				}
-			} else if(droproll < 150 && currentZone >= 2) {
-				roll = Math.floor(3*Math.random())
-				if(roll == 0) {
-					var item_dropped = "med helm"
-				} else if(roll == 1) {
-					var item_dropped = "chain torso"
-				} else {
-					var item_dropped = "chainskirt"
-				}
-			} else if(droproll < 250 && currentZone >= 1) {
-				roll = Math.floor(3*Math.random())
-				if(roll == 0) {
-					var item_dropped = "shortsword"
-				} else if(roll == 1) {
-					var item_dropped = "shortbow"
-				} else {
-					var item_dropped = "staff"
-				}
-			} else if(droproll < 350 && currentZone >= 1) {
-				roll = Math.floor(3*Math.random())
-				if(roll == 0) {
-					var item_dropped = "leather helm"
-				} else if(roll == 1) {
-					var item_dropped = "leather torso"
-				} else {
-					var item_dropped = "leather chaps"
+					item_dropped = "shortbow"
+				} else if(roll == 2){
+					item_dropped = "staff"
+				} else if(roll == 3) {
+					item_dropped = "leather helm"
+				} else if(roll == 4) {
+					item_dropped = "leather torso"
+				} else if(roll == 5) {
+					item_dropped = "leather chaps"
 				}
 			}
-			if (item_dropped != undefined) {
+			if(enemies[closest_enemy].mega) {
+				if(droproll < 25) {
+					item_dropped = "wooden ring"
+				}
+			}
+			if (item_dropped.length) {
 				var keys = Object.keys(inventory)
 				if(!keys.includes(item_dropped)) {
 					inventory[item_dropped] = Object.assign({}, drops[item_dropped])
-					inventory[item_dropped].owned = 1
+					inventory[item_dropped].owned = 1*templeRewards["loot"]
+					inventory[item_dropped].level = 1
 
 					if(inventory[item_dropped].type == "sword" || inventory[item_dropped].type == "magic" || inventory[item_dropped].type == "bow") {
-						inventory[item_dropped].attack = inventory[item_dropped].attack*(1.15**rebirth["equipment"].level)
-					} else {
-						inventory[item_dropped].defence = inventory[item_dropped].defence*(1.15**rebirth["equipment"].level)
+						inventory[item_dropped].attack = inventory[item_dropped].attack*(1.4**rebirth["equipment"].level)
+
+						if(team[0].tempWeapon && inventory[item_dropped].type == "sword") {
+							if(questStore["meleeSwap"].toggled && team[0].tempWeapon == "") {
+								team[0].tempWeapon = item_dropped
+							}
+							let new_index = weapon_tags.indexOf(item_dropped)
+							if(inventory[team[0].tempWeapon].type == "sword") {
+								let old_index = weapon_tags.indexOf(team[0].tempWeapon)
+								if(new_index > old_index) {
+									team[0].tempWeapon = item_dropped
+								}
+							} else {
+								let old_index = weapon_tags.indexOf(team[0].weapon)
+								if(new_index > old_index) {
+									team[0].weapon = item_dropped
+								}
+							}
+						}
+					} else if(inventory[item_dropped].type == "helmet" || inventory[item_dropped].type == "torso" || inventory[item_dropped].type == "legs"){
+						inventory[item_dropped].defence = inventory[item_dropped].defence*(1.4**rebirth["equipment"].level)
+					} else if(inventory[item_dropped] == "wooden ring") {
+						inventory[item_dropped].range = inventory[item_dropped].range*(1.15**rebirth["equipment"].level)
 					}
 
 				} else {
-					inventory[item_dropped].owned += 1
+					inventory[item_dropped].owned += 1*templeRewards["loot"]
 				}
 				messages.push({text: enemies[closest_enemy].species + " dropped a " + item_dropped, timeout: Date.now()/1000 + 3})
 			}
@@ -1043,35 +2293,77 @@ var main = function() {
 
 			if(enemies.length == 0) {
 				currentStage += 1
-				if (currentStage > highestStages[currentZone - 1]) {
-					highestStages[currentZone - 1] = currentStage
-					rebirth_points += Math.floor(1.5*currentZone*(currentStage - 1))
+				if (currentStage > highestStages[currentArea - 1]) {
+					highestStages[currentArea - 1] = currentStage
+					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1))
+
+					let stage_names = Object.keys(quests_list)
+					let current_stage_name = stage_names[currentArea - 1]
+					if(currentStage > quests_list[current_stage_name]["waves"].progress) {
+						quests_list[current_stage_name]["waves"].progress = currentStage
+					}
+
+					if(currentStage >= quests_list[current_stage_name]["waves"].goal) {
+						rebirth_points += quests_list[current_stage_name]["waves"].reward
+						quests_list[current_stage_name]["waves"].goal += 5
+						quests_list[current_stage_name]["waves"].reward *= 5
+						messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+						questStore.quest_points += 1
+					}
 				}
 				bolts = []
-				if(currentStage == 10 && currentZone == highestZone) {
-					highestZone += 1
-					highestStages[highestZone - 1] = 1
-					battle.addButton("zone " + highestZone, species_tags[highestZone - 1], "14px Arial", "black", 25 + 90*(highestZone - 1), 50, function(number) {
-						loadZone(number)
-					}, 75, 75)
-					battle.drawButton("zone " + highestZone)
+				if(currentStage == 10) {
+					if(questStore["reset10"].toggled) {
+						currentStage = 1
+					}
+					if(currentArea == highestArea) {
+						if(quests_list["misc"]["noEquipment"].didEquip == false) {
+							quests_list["misc"]["noEquipment"].progress += 1
+							if(quests_list["misc"]["noEquipment"].progress >= 5) {
+								messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+								questStore.quest_points += 1
+							}
+						}
+						highestArea += 1
+						highestStages[highestArea - 1] = 1
+						battle.addButton("area " + highestArea, species_tags[highestArea - 1], "14px Arial", "black", 9 + 88*(highestArea - 1), 10, function(number) {
+							loadArea(number)
+						}, 75, 75)
+						battle.drawButton("area " + highestArea)
+					}
 				}
-				for(i=0; i<totems.length; i++) {
+				for(i=0; i<support["totem"].totems.length; i++) {
 					let x = 500*Math.random() + 150
 					let y = 500*Math.random() + 150
 
-					totems[i].x = x
-					totems[i].y = y
+					support["totem"].totems[i].x = x
+					support["totem"].totems[i].y = y
 				}
 				spawnEnemies()
-				team[0].x = 350
+				team[0].x = 400
 				team[0].y = 600
 
 				var n = 0
 				for(i=1; i<team.length; i++) {
-					team[i].x = 350 + 50*Math.cos(n*Math.PI)
+					team[i].x = 400 + 50*Math.cos(n*Math.PI)
 					team[i].y = 600 + 50*Math.ceil(n/2)
 					n += 1
+				}
+			}
+		}
+
+		function calc_def_ratio(temp_def) {
+			let def_ratio = 0
+			for(j=0; j<100; j++) {
+				if (temp_def < 90) {
+					return temp_def
+				} else {
+					def_ratio += 9*10**(-j + 1)
+					temp_def -= 90*10**(j)
+					if (temp_def < 90*10**(j+1)) {
+						def_ratio += (temp_def/(100*10**(j + 1)))*10**(-j+1)
+						return def_ratio
+					}
 				}
 			}
 		}
@@ -1092,12 +2384,12 @@ var main = function() {
 
 		var in_buff_range = false
 		var speed_bonus = 1
-		for(i=0; i<totems.length; i++) {
-			totem_xdif = totems[i].x - team[0].x
-			totem_ydif = totems[i].y - team[0].y
+		for(i=0; i<support["totem"].totems.length; i++) {
+			totem_xdif = support["totem"].totems[i].x - team[0].x
+			totem_ydif = support["totem"].totems[i].y - team[0].y
 			totem_dist = Math.sqrt(totem_xdif*totem_xdif + totem_ydif*totem_ydif)
 
-			if(totem_dist < 150) {
+			if(totem_dist < 75 + 25*(support["totem"].level - 1)) {
 				in_buff_range = true
 			}
 		}
@@ -1108,13 +2400,34 @@ var main = function() {
 		angle = Math.atan2(ydif, xdif)
 		movex = team[0].speed*Math.cos(angle)*speed_bonus*devmode
 		movey = team[0].speed*Math.sin(angle)*speed_bonus*devmode
-		if (closest_dist > inventory[team[0].weapon].range) {
+
+		let ring_bonus = 0
+		if(team[0].rings.includes("wooden ring") && (inventory[team[0].weapon].type == "bow" || inventory[team[0].weapon].type == "magic")) {
+			ring_bonus = inventory["wooden ring"].range
+		}
+		if(team[0].tempWeapon && inventory[team[0].weapon].type == "sword" && closest_dist > inventory[team[0].weapon].range) {
+			let temp = team[0].weapon
+			team[0].weapon = team[0].tempWeapon
+			team[0].tempWeapon = temp
+		}
+		if (closest_dist > inventory[team[0].weapon].range + ring_bonus) {
+			let movedist = Math.sqrt(movex*movex + movey*movey)
+			let goalmove = closest_dist - inventory[team[0].weapon].range - ring_bonus + 1
+			if(goalmove < movedist) {
+				movex = goalmove*Math.cos(angle)
+				movey = goalmove*Math.sin(angle)
+			}
 			team[0].x += movex
 			team[0].y += movey
 		} else {
 			if(Date.now()/1000 > team[0].cooldown){
 				team[0].cooldown = Date.now()/1000 + inventory[team[0].weapon].cooldown/speed_bonus/devmode
 				if(inventory[team[0].weapon].type == "bow" || inventory[team[0].weapon].type == "magic") {
+					if(team[0].tempWeapon && closest_dist <= inventory[team[0].tempWeapon].range) {
+						let temp = team[0].weapon
+						team[0].weapon = team[0].tempWeapon
+						team[0].tempWeapon = temp
+					}
 					bolts.push({
 						x: team[0].x,
 						y: team[0].y,
@@ -1124,7 +2437,9 @@ var main = function() {
 				}
 				if(inventory[team[0].weapon].type == "sword"){
 					damage = team[0].attack + inventory[team[0].weapon].attack
-					damage = damage/(100/(100-10*Math.log(species[enemies[closest_enemy].species].defence)))
+					var temp_def = species[enemies[closest_enemy].species].defence*(1.1**enemies[closest_enemy].prestige)
+					def_ratio = calc_def_ratio(temp_def)
+					damage = damage/(100/(100-def_ratio))
 					enemies[closest_enemy].health -= damage
 
 					if(enemies[closest_enemy].health <= 0) {
@@ -1140,9 +2455,11 @@ var main = function() {
 
 					if(dist < 15) {
 						damage = team[0].attack + inventory[team[0].weapon].attack
-						damage = damage/(100/(100-10*Math.log(species[enemies[bolts[i].targetid].species].defence)))
+						var temp_def = species[enemies[bolts[i].targetid].species].defence*(1.1**enemies[closest_enemy].prestige)
+						def_ratio = calc_def_ratio(temp_def)
+						damage = damage/(100/(100-def_ratio))
 						enemies[bolts[i].targetid].health -= damage
-						enemies[bolts[i].targetid].aggro = true
+						enemies[bolts[i].targetid].targetid = 0
 
 						if(enemies[bolts[i].targetid].health <= 0) {
 							handleDeath(bolts[i].targetid)
@@ -1176,9 +2493,9 @@ var main = function() {
 			xdif = enemies[closest_enemy].x - team[i].x
 			ydif = enemies[closest_enemy].y - team[i].y
 
-			for(j=0; j<totems.length; j++) {
-				totem_xdif = totems[j].x - team[i].x
-				totem_ydif = totems[j].y - team[i].y
+			for(j=0; j<support["totem"].totems.length; j++) {
+				totem_xdif = support["totem"].totems[j].x - team[i].x
+				totem_ydif = support["totem"].totems[j].y - team[i].y
 				totem_dist = Math.sqrt(totem_xdif*totem_xdif + totem_ydif*totem_ydif)
 
 				if(totem_dist < 150) {
@@ -1190,16 +2507,23 @@ var main = function() {
 			}
 
 			angle = Math.atan2(ydif, xdif)
-			movex = 2*team[0].speed*Math.cos(angle)*speed_bonus*devmode
-			movey = 2*team[0].speed*Math.sin(angle)*speed_bonus*devmode
+			movex = 5*Math.cos(angle)*speed_bonus*devmode
+			movey = 5*Math.sin(angle)*speed_bonus*devmode
 			if (closest_dist > 25) {
+				let movedist = Math.sqrt(movex*movex + movey*movey)
+				let goalmove = closest_dist - 24
+				if(goalmove < movedist) {
+					movex = goalmove*Math.cos(angle)
+					movey = goalmove*Math.sin(angle)
+				}
 				team[i].x += movex
 				team[i].y += movey
 			} else {
 				if(Date.now()/1000 > team[i].cooldown){
-					damage = species[team[i].name].attack * (1.5**rebirth["ally"].level)
-					defence = species[enemies[closest_enemy].species].defence*(1.5**enemies[closest_enemy].prestige)
-					damage = damage/(100/(100-10*Math.log(defence)))
+					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10
+					var temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+					def_ratio = calc_def_ratio(temp_def)
+					damage = damage/(100/(100-def_ratio))
 					enemies[closest_enemy].health -= damage
 					team[i].cooldown = Date.now()/1000 + 1/speed_bonus/devmode
 				}
@@ -1229,11 +2553,11 @@ var main = function() {
 				}
 				enemies[i].trajectory.angle += enemies[i].trajectory.turning
 
-				if(enemies[i].x < 25) {
-					enemies[i].x = 25
+				if(enemies[i].x < 85) {
+					enemies[i].x = 85
 					enemies[i].trajectory.angle += Math.PI
-				} else if(enemies[i].x > 675) {
-					enemies[i].x = 675
+				} else if(enemies[i].x > 775) {
+					enemies[i].x = 775
 					enemies[i].trajectory.angle += Math.PI
 				}
 				if(enemies[i].y < 25) {
@@ -1247,64 +2571,72 @@ var main = function() {
 				enemies[i].x += 2*Math.cos(enemies[i].trajectory.angle)/10
 				enemies[i].y += 2*Math.sin(enemies[i].trajectory.angle)/10
 			} else {
-				enemies[i].aggro = true
+				enemies[i].targetid = closest_enemy
 
 				if (enemies[i].species == "beast") {
 					for(j=0; j<enemies.length; j++){
-						if (i != j && enemies[j].species == "beast" && enemies[j].aggro != true) {
+						if (i != j && enemies[j].species == "beast" && enemies[j].targetid == undefined) {
 							xdif = enemies[i].x - enemies[j].x
 							ydif = enemies[i].y - enemies[j].y
 							dist = Math.sqrt(xdif*xdif + ydif*ydif)
 							if(dist < 100) {
-								enemies[j].aggro = true
+								enemies[j].targetid = enemies[i].targetid
 								messages.push({text: "A beast has joined the pack!", timeout: Date.now()/1000 + 3})
 							}
 						}
 					}
 				}
 			}
-			if(enemies[i].aggro){
+			if(enemies[i].targetid != undefined){
+				if(enemies[i].cooldown == undefined) {
+					enemies[i].cooldown = Date.now()/1000 + 1/(1.1**enemies[i].prestige)/devmode
+				}
 				xdif = Math.abs(enemies[i].x - team[closest_enemy].x)
 				ydif = Math.abs(enemies[i].y - team[closest_enemy].y)
 				dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				xdif = team[closest_enemy].x - enemies[i].x
 				ydif = team[closest_enemy].y - enemies[i].y
 				angle = Math.atan2(ydif, xdif)
-				movex = Math.cos(angle)*(1.25**enemies[i].prestige)*devmode
-				movey = Math.sin(angle)*(1.25**enemies[i].prestige)*devmode
+				movex = Math.cos(angle)*(1.05**enemies[i].prestige)*devmode
+				movey = Math.sin(angle)*(1.05**enemies[i].prestige)*devmode
 				if(dist > 25) {
+					let movedist = Math.sqrt(movex*movex + movey*movey)
+					let goalmove = closest_dist - 24
+					if(goalmove < movedist) {
+						movex = goalmove*Math.cos(angle)
+						movey = goalmove*Math.sin(angle)
+					}
 					enemies[i].x += movex
 					enemies[i].y += movey
 				} else {
 					if(Date.now()/1000 > enemies[i].cooldown){
-						damage = species[enemies[i].species].attack*(1.5**enemies[i].prestige)
+						damage = species[enemies[i].species].attack*(1.2**enemies[i].prestige)
 						if(closest_enemy == 0) {
 							defence = team[0].defence
 							defence += team[0].helmet ? inventory[team[0].helmet].defence : 0
 							defence += team[0].torso ? inventory[team[0].torso].defence : 0
 							defence += team[0].legs ? inventory[team[0].legs].defence : 0
 						} else {
-							defence = team[closest_enemy].defence * (1.5**rebirth["ally"].level)
+							defence = team[closest_enemy].defence * (1.25**rebirth["ally"].level) * (housing[team[closest_enemy].name].level + 9)/10
 						}
-						damage = damage/(100/(100-10*Math.log(defence)))
+						def_ratio = calc_def_ratio(defence)
+						damage = damage/(100/(100-def_ratio))
 						team[closest_enemy].health -= damage
-						enemies[i].cooldown = Date.now()/1000 + 1/(1.05**enemies[i].prestige)/devmode
+						enemies[i].cooldown = Date.now()/1000 + 1/(1.1**enemies[i].prestige)/devmode
 					}
 
 					if(team[closest_enemy].health <= 0) {
 						team[closest_enemy].health = 0
 						if(team[closest_enemy]["name"] == "hero") {
 							team[0].health = 100
-							loadZone(currentZone)
+							loadArea(currentArea)
 						} else {
-							enemies[i].aggro = false
-							if(team[closest_enemy].name == "kobold") {
-								huts_filled -= 1
-							} else if(team[closest_enemy].name == "beast") {
-								dens_filled -= 1
-							} else if(team[closest_enemy].name == "giant") {
-								caves_filled -= 1
+							for(j=0; j<enemies.length; j++) {
+								if(enemies[j].targetid == closest_enemy) {
+									enemies[j].targetid = undefined
+								}
 							}
+							housing[team[closest_enemy].name].filled -= 1
 							team.splice(closest_enemy, 1)
 						}
 					}
