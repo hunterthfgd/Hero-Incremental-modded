@@ -667,7 +667,6 @@ function rebirthResets() {
 	for(i=1; i<highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
-	inv["buttons"] = {}
 	bolts = []
 	highestArea = 1
 	currentArea = 1
@@ -935,6 +934,7 @@ function drawInfo() {
 }
 
 function drawInventory() {
+	inv["buttons"] = {}
 	if (!pageLoadChecker.inventory){
 		ctx.clearRect(0, 0, 800, 800)
 		inv.addButton("close", "Close Inventory", "14px Arial", "black", 10, 10, function() {
@@ -1662,8 +1662,8 @@ function drawQuests() {
 		}
 		if(!questStore["meleeSwap"].bought) {
 			quests.addButton("buy meleeSwap", "5 Points", "14px Arial", "black", 370, 416, function() {
-				quests.removeButton("buy meleeSwap")
 				if(questStore.quest_points >= 5) {
+					quests.removeButton("buy meleeSwap")
 					questStore.quest_points -= 5
 					questStore["meleeSwap"].bought = true
 					pageLoadChecker.quests = false
