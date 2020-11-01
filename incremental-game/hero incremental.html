@@ -1703,10 +1703,13 @@ function drawQuests() {
 					} else if(inventory["shortsword"]) {
 						team[0].tempWeapon = "shortsword"
 					}
-				} else if(!questStore["meleeSwap"].toggled && team[0].tempWeapon &&
-					(inventory[team[0].tempWeapon].type == "bow" || inventory[team[0].tempWeapon].type == "magic")) {
-					team[0].weapon = team[0].tempWeapon
-					team[0].tempWeapon = ""
+				} else if(!questStore["meleeSwap"].toggled && team[0].tempWeapon) {
+					if (inventory[team[0].tempWeapon].type == "bow" || inventory[team[0].tempWeapon].type == "magic") {
+						team[0].weapon = team[0].tempWeapon
+						team[0].tempWeapon = ""
+					} else if(inventory[team[0].tempWeapon].type == "sword"){
+						team[0].tempWeapon = ""
+					}
 				}
 				pageLoadChecker.quests = false
 				drawQuests()
