@@ -914,11 +914,11 @@ function drawInfo() {
 
 	ctx.fillText("Health " + Math.ceil(team[0].health), 10, 100)
 	ctx.fillStyle = "blue"
-	ctx.fillText("Crystal " + Math.round(resources["crystal"]), 10, 120)
+	ctx.fillText("Crystal " + Math.floor(resources["crystal"]), 10, 120)
 	ctx.fillStyle = "brown"
-	ctx.fillText("Stone " + Math.round(resources["stone"]), 10, 140)
+	ctx.fillText("Stone " + Math.floor(resources["stone"]), 10, 140)
 	ctx.fillStyle = "green"
-	ctx.fillText("Leaf " + Math.round(resources["leaf"]), 10, 160)
+	ctx.fillText("Leaf " + Math.floor(resources["leaf"]), 10, 160)
 	battle.drawButton("inventory")
 	battle.drawButton("buildings")
 	battle.drawButton("quests")
@@ -1188,7 +1188,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade hut")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(10 * (housing["kobold"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(10 * (housing["kobold"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "den") {
 			ctx.strokeRect(170, 50, 350, 200)
@@ -1225,7 +1225,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade den")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(100 * (housing["beast"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(100 * (housing["beast"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "cave") {
 			ctx.strokeRect(170, 50, 350, 200)
@@ -1262,7 +1262,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade cave")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(1000 * (housing["giant"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(1000 * (housing["giant"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "mountain") {
 			ctx.strokeRect(170, 50, 350, 200)
@@ -1298,7 +1298,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade mountain")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(10000 * (housing["golem"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(10000 * (housing["golem"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "pit") {
 			ctx.strokeRect(170, 50, 350, 200)
@@ -1334,7 +1334,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade pit")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(100000 * (housing["demon"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(100000 * (housing["demon"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "nest") {
 			ctx.strokeRect(170, 50, 350, 200)
@@ -1370,7 +1370,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade nest")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(1000000 * (housing["dragon"].level + 1)**1.5) + " Stone", 320, 218)
+				ctx.fillText(Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5) + " Stone", 320, 218)
 			}
 		} else if(building == "meteor") {
 			ctx.strokeRect(200, 50, 350, 200)
@@ -1410,7 +1410,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade meteor")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(250 * 2**support["meteor"].level) + " Crystal", 350, 218)
+				ctx.fillText(Math.ceil(250 * 2**support["meteor"].level) + " Crystal", 350, 218)
 			}
 		} else if(building == "totem") {
 			ctx.strokeRect(200, 50, 350, 200)
@@ -1451,7 +1451,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade totem")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.round(400 * 2**support["totem"].level) + " Leaf", 350, 218)
+				ctx.fillText(Math.ceil(400 * 2**support["totem"].level) + " Leaf", 350, 218)
 			}
 		}
 	}
@@ -1465,7 +1465,7 @@ function drawBuildingsScreen() {
 			pageLoadChecker.buildings = false
 		})
 		buildings.drawButton("close")
-		ctx.fillText("Crystal: " + Math.round(resources["crystal"]) + " Stone: " + Math.round(resources["stone"]) + " Leaf: " + Math.round(resources["leaf"]), 10, 25)
+		ctx.fillText("Crystal: " + Math.floor(resources["crystal"]) + " Stone: " + Math.floor(resources["stone"]) + " Leaf: " + Math.floor(resources["leaf"]), 10, 25)
 
 		ctx.strokeRect(10, 50, 75, 200)
 		ctx.font = "16px Arial"
