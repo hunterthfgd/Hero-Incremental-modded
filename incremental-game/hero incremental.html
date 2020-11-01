@@ -846,11 +846,12 @@ function drawTeam(team) {
 		ctx.fillText(species[team[i].name].symbol, team[i].x, team[i].y)
 
 		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10) {
+			let width = ctx.measureText(species[team[i]["name"]].symbol).width
 			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10)
 			ctx.fillStyle = "black"
-			ctx.strokeRect(team[i].x - 40, team[i].y - 30, 80, 8)
+			ctx.strokeRect(team[i].x - 40 + width/2, team[i].y - 30, 80, 8)
 			ctx.fillStyle = "blue"
-			ctx.fillRect(team[i].x - 40, team[i].y - 30, 80*ratio, 8)
+			ctx.fillRect(team[i].x - 40 + width/2, team[i].y - 30, 80*ratio, 8)
 		}
 	}
 }
@@ -868,10 +869,11 @@ function drawEnemies(enemies) {
 		ctx.fillText(species[enemy_species].symbol, enemies[i].x, enemies[i].y)
 
 		if(enemies[i].health < enemies[i].total_health) {
+			let width = ctx.measureText(species[enemy_species].symbol).width
 			ratio = enemies[i].health/enemies[i].total_health
 			ctx.fillStyle = "red"
-			ctx.fillRect(enemies[i].x - 40, enemies[i].y - 30, 80*ratio, 8)
-			ctx.strokeRect(enemies[i].x - 40, enemies[i].y - 30, 80, 8)
+			ctx.fillRect(enemies[i].x - 40 + width/2, enemies[i].y - 30, 80*ratio, 8)
+			ctx.strokeRect(enemies[i].x - 40 + width/2, enemies[i].y - 30, 80, 8)
 		}
 	}
 }
@@ -976,9 +978,10 @@ function drawInventory() {
 				ctx.fillText(weapon_tags[i], 12 + 100*(i%3), 96 + 100*Math.floor(i/3))
 				ctx.font = "12px Arial"
 				ctx.fillStyle = "black"
-				ctx.fillText("Attack: " + weapon_details.attack.toFixed(2), 12 + 100*(i%3), 110 + 100*Math.floor(i/3))
-				ctx.fillText("Speed: " + (1/weapon_details.cooldown).toFixed(2), 12 + 100*(i%3), 122 + 100*Math.floor(i/3))
-				ctx.fillText("Owned: " + weapon_details.owned, 12 + 100*(i%3), 134 + 100*Math.floor(i/3))
+				ctx.fillText("Dps: " + (weapon_details.attack/weapon_details.cooldown).toFixed(2), 12 + 100*(i%3), 110 + 100*Math.floor(i/3))
+				ctx.fillText("Attack: " + weapon_details.attack.toFixed(2), 12 + 100*(i%3), 122 + 100*Math.floor(i/3))
+				ctx.fillText("Speed: " + (1/weapon_details.cooldown).toFixed(2), 12 + 100*(i%3), 134 + 100*Math.floor(i/3))
+				ctx.fillText("Owned: " + weapon_details.owned, 12 + 100*(i%3), 146 + 100*Math.floor(i/3))
 				if(team[0].weapon == weapon_tags[i]) {
 					inv.addButton("unequip " + weapon_tags[i], "Unequip", "14px Arial", "black", 12 + 100*(i%3), 176 + 100*Math.floor(i/3), function(item) {
 						inv.removeButton("unequip " + item)
@@ -2124,7 +2127,7 @@ var main = function() {
 					for(j=0; j<enemies.length; j++) {
 						if(enemies[j].x < support["meteor"].meteors[i].x + 128/4 && enemies[j].x > support["meteor"].meteors[i].x - 128/4
 							&& enemies[j].y < support["meteor"].meteors[i].y + 128/4 && enemies[j].y > support["meteor"].meteors[i].y - 128/4) {
-							enemies[j].health -= 25*(support["meteor"].level + 1)
+							enemies[j].health -= 40*(support["meteor"].level + 1)
 
 							if(enemies[j].health <= 0) {
 								deaths.push(j)
@@ -2461,32 +2464,32 @@ var main = function() {
 					}
 				}
 			}
-			if(bolts.length) {
-				for (i=0; i<bolts.length; i++) {
-					diffx = enemies[bolts[i].targetid].x - bolts[i].x
-					diffy = enemies[bolts[i].targetid].y - bolts[i].y
-					dist = Math.sqrt(diffx*diffx + diffy*diffy)
+		}
+		if(bolts.length) {
+			for (i=0; i<bolts.length; i++) {
+				diffx = enemies[bolts[i].targetid].x - bolts[i].x
+				diffy = enemies[bolts[i].targetid].y - bolts[i].y
+				dist = Math.sqrt(diffx*diffx + diffy*diffy)
 
-					if(dist < 15) {
-						damage = team[0].attack + inventory[team[0].weapon].attack
-						var temp_def = species[enemies[bolts[i].targetid].species].defence*(1.1**enemies[closest_enemy].prestige)
-						def_ratio = calc_def_ratio(temp_def)
-						damage = damage/(100/(100-def_ratio))
-						enemies[bolts[i].targetid].health -= damage
-						enemies[bolts[i].targetid].targetid = 0
+				if(dist < 15) {
+					damage = team[0].attack + inventory[team[0].weapon].attack
+					var temp_def = species[enemies[bolts[i].targetid].species].defence*(1.1**enemies[closest_enemy].prestige)
+					def_ratio = calc_def_ratio(temp_def)
+					damage = damage/(100/(100-def_ratio))
+					enemies[bolts[i].targetid].health -= damage
+					enemies[bolts[i].targetid].targetid = 0
 
-						if(enemies[bolts[i].targetid].health <= 0) {
-							handleDeath(bolts[i].targetid)
-							bolts = []
-						} else {
-							bolts.splice(i, 1)
-						}
+					if(enemies[bolts[i].targetid].health <= 0) {
+						handleDeath(bolts[i].targetid)
+						bolts = []
 					} else {
-						angle = Math.atan2(diffy, diffx)
-						bolts[i].angle = angle
-						bolts[i].x += 5*Math.cos(angle)*devmode
-						bolts[i].y += 5*Math.sin(angle)*devmode
+						bolts.splice(i, 1)
 					}
+				} else {
+					angle = Math.atan2(diffy, diffx)
+					bolts[i].angle = angle
+					bolts[i].x += 5*Math.cos(angle)*devmode
+					bolts[i].y += 5*Math.sin(angle)*devmode
 				}
 			}
 		}
