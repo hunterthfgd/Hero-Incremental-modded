@@ -1985,7 +1985,8 @@ function drawTemple() {
 		temple.drawButton("close")
 
 		temple.addButton("ring", "Pillar: Gold Ring", "14px Arial", "black", 10, 70, function() {
-			inventory["gold ring"] = drops["gold ring"]
+			inventory["gold ring"] = Object.assign({}, drops["gold ring"])
+			inventory["gold ring"].owned = 1
 			team[0].rings.push("gold ring")
 			templeRewards["ring"] = 2
 
@@ -2123,6 +2124,7 @@ var main = function() {
 						quests_list["misc"]["meteor"].progress = deaths.length
 						if(deaths.length >= 4) {
 							inventory["iron ring"] = Object.assign({}, drops["iron ring"])
+							inventory["iron ring"].owned = 1
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 							questStore.quest_points += 1
 						}
