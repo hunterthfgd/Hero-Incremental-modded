@@ -2270,8 +2270,8 @@ var main = function() {
 					if(inventory[item_dropped].type == "sword" || inventory[item_dropped].type == "magic" || inventory[item_dropped].type == "bow") {
 						inventory[item_dropped].attack = inventory[item_dropped].attack*(1.4**rebirth["equipment"].level)
 
-						if(inventory[item_dropped].type == "sword") {
-							if(questStore["meleeSwap"].toggled && team[0].tempWeapon == "") {
+						if(questStore["meleeSwap"].toggled && inventory[item_dropped].type == "sword") {
+							if(team[0].tempWeapon == "") {
 								team[0].tempWeapon = item_dropped
 							}
 							let new_index = weapon_tags.indexOf(item_dropped)
