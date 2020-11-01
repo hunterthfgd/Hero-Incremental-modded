@@ -1628,7 +1628,7 @@ function drawQuests() {
 			pageLoadChecker.quests = false
 		})
 		quests.addButton("buy speed", "10 Points", "14px Arial", "black", 370, 356, function() {
-			if(questStore.quest_points > 10) {
+			if(questStore.quest_points >= 10) {
 				quests.removeButton("buy speed")
 				questStore.quest_points -= 10
 				questStore["speed"].bought = true
@@ -1639,7 +1639,7 @@ function drawQuests() {
 		}, 75, 18)
 		if(!questStore["craftAll"].bought) {
 			quests.addButton("buy craftAll", "3 Points", "14px Arial", "black", 370, 376, function() {
-				if(questStore.quest_points > 3) {
+				if(questStore.quest_points >= 3) {
 					quests.removeButton("buy craftAll")
 					questStore.quest_points -= 3
 					questStore["craftAll"].bought = true
@@ -1650,9 +1650,9 @@ function drawQuests() {
 		}
 		if(!questStore["reset10"].bought) {
 			quests.addButton("buy reset10", "6 Points", "14px Arial", "black", 370, 396, function() {
-				if(questStore.quest_points > 5) {
+				if(questStore.quest_points >= 6) {
 					quests.removeButton("buy reset10")
-					questStore.quest_points -= 5
+					questStore.quest_points -= 6
 					questStore["reset10"].bought = true
 					pageLoadChecker.quests = false
 					drawQuests()
@@ -1662,8 +1662,8 @@ function drawQuests() {
 		if(!questStore["meleeSwap"].bought) {
 			quests.addButton("buy meleeSwap", "5 Points", "14px Arial", "black", 370, 416, function() {
 				quests.removeButton("buy meleeSwap")
-				if(questStore.quest_points > 9) {
-					questStore.quest_points -= 9
+				if(questStore.quest_points >= 5) {
+					questStore.quest_points -= 5
 					questStore["meleeSwap"].bought = true
 					pageLoadChecker.quests = false
 					drawQuests()
