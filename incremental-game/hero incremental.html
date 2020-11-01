@@ -269,6 +269,7 @@ var team = [{
 	defence: 10,
 	speed: 2,
 	cooldown: Date.now()/1000,
+	tempWeapon: "",
 	weapon: "hands",
 	helmet: "",
 	torso: "",
@@ -1702,7 +1703,8 @@ function drawQuests() {
 					} else if(inventory["shortsword"]) {
 						team[0].tempWeapon = "shortsword"
 					}
-				} else if(!questStore["meleeSwap"].toggled && (inventory[team[0].tempWeapon].type == "bow" || inventory[team[0].tempWeapon].type == "magic")) {
+				} else if(!questStore["meleeSwap"].toggled && team[0].tempWeapon &&
+					(inventory[team[0].tempWeapon].type == "bow" || inventory[team[0].tempWeapon].type == "magic")) {
 					team[0].weapon = team[0].tempWeapon
 					team[0].tempWeapon = ""
 				}
