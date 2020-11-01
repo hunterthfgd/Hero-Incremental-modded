@@ -1985,28 +1985,34 @@ function drawTemple() {
 		temple.drawButton("close")
 
 		temple.addButton("ring", "Pillar: Gold Ring", "14px Arial", "black", 10, 70, function() {
-			inventory["gold ring"] = Object.assign({}, drops["gold ring"])
-			inventory["gold ring"].owned = 1
-			team[0].rings.push("gold ring")
-			templeRewards["ring"] = 2
+			if(templeRewards["ring"] < 2) {
+				inventory["gold ring"] = Object.assign({}, drops["gold ring"])
+				inventory["gold ring"].owned = 1
+				team[0].rings.push("gold ring")
+				templeRewards["ring"] = 2
 
-			templeResets()
-			spawnEnemies()
-			currentPage = "battle"
+				templeResets()
+				spawnEnemies()
+				currentPage = "battle"
+			}
 		}, 150, 40)
 		temple.addButton("loot", "Pillar: Double Loot", "14px Arial", "black", 200, 70, function() {
-			templeRewards["loot"] = 2
+			if(templeRewards["loot"] < 2) {
+				templeRewards["loot"] = 2
 
-			templeResets()
-			spawnEnemies()
-			currentPage = "battle"
+				templeResets()
+				spawnEnemies()
+				currentPage = "battle"
+			}
 		}, 150, 40)
 		temple.addButton("wisdom", "Pillar: Heroic Wisdom", "14px Arial", "black", 390, 70, function() {
-			templeRewards["wisdom"] = true
+			if(!templeRewards["wisdom"]) {
+				templeRewards["wisdom"] = true
 
-			templeResets()
-			spawnEnemies()
-			currentPage = "battle"
+				templeResets()
+				spawnEnemies()
+				currentPage = "battle"
+			}
 		}, 150, 40)
 
 		ctx.fillText("Choose wisely..", 10, 50)
@@ -2122,7 +2128,7 @@ var main = function() {
 					}
 					if(deaths.length > quests_list["misc"]["meteor"].progress) {
 						quests_list["misc"]["meteor"].progress = deaths.length
-						if(deaths.length >= 4) {
+						if(deaths.length >= 4 && quests_list["misc"]["meteor"].progress < 4) {
 							inventory["iron ring"] = Object.assign({}, drops["iron ring"])
 							inventory["iron ring"].owned = 1
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
