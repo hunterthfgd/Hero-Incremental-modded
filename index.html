@@ -981,6 +981,10 @@ function drawInfo() {
 	battle.drawButton("stats")
 	battle.drawButton("mansave")
 
+	
+	ctx.fillStyle = "purple"
+	ctx.fillText("Current RP " +formatT("" +  Math.floor(rebirth_points)), 700, 40)
+
 	ctx.font = "10px Arial"
 	if(messages.length > 0) {
 		for(i=messages.length - 1; i>=0; i--) {
