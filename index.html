@@ -459,6 +459,10 @@ var rebirth = {
 	"resgain": {
 		level: 0,
 		cost: 1000
+	},
+	"crafteff": {
+		level: 0,
+		cost: 1500
 	}
 }
 var rebirth_original = Object.assign({}, rebirth)
@@ -1049,6 +1053,8 @@ function drawInventory() {
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 							questStore.quest_points += 1
 						}
+						let crafteff = 1 + rebirth["crafteff"].level*0.1;
+						craft_bonus *= crafteff;
 						inventory[item].level += inventory[item].owned - 1
 						inventory[item].attack = drops[item].attack*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
 						let cd = drops[item].cooldown
@@ -2032,6 +2038,20 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("resgain+")
+		stats.addButton("crafteff+", "+", "16px Arial", "black", 10, 290, function() {
+			if(rebirth_points >= rebirth["crafteff"].cost) {
+				rebirth_points -= rebirth["crafteff"].cost
+				rebirth["crafteff"].cost = Math.round(1.75*rebirth["crafteff"].cost)
+				rebirth["crafteff"].level += 1
+
+				rebirthResets()
+				spawnEnemies()
+
+				pageLoadChecker.stats = false
+				drawStats()
+			}
+		})
+		stats.drawButton("crafteff+")
 		ctx.fillText("Rebirth Points: " + rebirth_points, 10, 150)
 		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + rebirth["hero"].cost, 26, 170)
 		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
@@ -2039,6 +2059,7 @@ function drawStats() {
 		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
 		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode2*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
 		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + rebirth["resgain"].cost, 26, 270)
+		ctx.fillText("Craft Level (Eff: x" + (Math.round(rebirth["crafteff"].level)*0.1 + 1) + "): " + rebirth["crafteff"].level + " Cost: " + rebirth["crafteff"].cost, 26, 290)
 	}
 	pageLoadChecker.stats = true
 }
