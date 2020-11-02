@@ -546,7 +546,7 @@ var currentArea = 1,
 	highestArea = 1,
 	currentStage = 1
 
-savefile = localStorage.getItem("savefile")
+savefile = localStorage.getItem("savefile1")
 savefile = JSON.parse(savefile)
 if(savefile != undefined) {
 	templeRewards = savefile.templeRewards
@@ -686,7 +686,7 @@ function loadArea(area) {
 		inventory: inventory,
 		team: team
 	}
-	localStorage.setItem("savefile", JSON.stringify(savefile))
+	localStorage.setItem("savefile1", JSON.stringify(savefile))
 }
 
 function rebirthResets() {
