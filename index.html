@@ -574,7 +574,7 @@ if(savefile != undefined) {
 		}
 	}
 
-	if(quests_list["misc"]["noEquipment"].progress >= 5) {
+	if(quests_list["misc"]["noEquipment"].progress >= 4) {
 		baseBonus = 3
 
 		team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
@@ -646,7 +646,7 @@ function loadArea(area) {
 	}
 	currentArea = area
 	currentStage = 1
-	team[0].health = 100
+	team[0].health = 100*templeRewards["ring"]
 	team[0].x = 400
 	team[0].y = 600
 
@@ -693,6 +693,7 @@ function rebirthResets() {
 	if(quests_list["misc"]["time"].completed == false) {
 		quests_list["misc"]["time"].start = Date.now()/1000
 	}
+	quests_list["misc"]["noEquipment"].didEquip = false
 	for(i=1; i<highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
@@ -758,7 +759,7 @@ function rebirthResets() {
 		x: 350,
 		y: 600,
 		experience: team[0].experience,
-		health: 100*templeRewards["ring"],
+		health: 100,
 		baseAttack: team[0].baseAttack,
 		attack: team[0].attack,
 		baseDefence: team[0].baseDefence,
@@ -779,7 +780,8 @@ function templeResets() {
 	quests_list = Object.assign({}, original_quests_list)
 	rebirth = Object.assign({}, rebirth_original)
 	rebirth_points = 0
-
+	quests_list["misc"]["noEquipment"].didEquip = false
+	
 	for(i=1; i<highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
@@ -845,7 +847,7 @@ function templeResets() {
 		x: 350,
 		y: 600,
 		experience: 0,
-		health: 100*templeRewards["ring"],
+		health: 100,
 		baseAttack: 1,
 		attack: (baseBonus - 1)**9 + 1,
 		baseDefence: 10,
@@ -1047,7 +1049,7 @@ function drawInventory() {
 						var i = weapon_tags.indexOf(item)
 						quests_list["misc"]["craft"].progress += inventory[item].owned - 1
 						let craft_bonus = 1.0
-						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress > 10000) {
+						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress >= 10000) {
 							craft_bonus = 1.1
 							quests_list["misc"]["craft"].completed = true
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
@@ -1055,11 +1057,13 @@ function drawInventory() {
 						}
 						let crafteff = 1 + rebirth["crafteff"].level*0.1;
 						craft_bonus *= crafteff;
-						inventory[item].level += inventory[item].owned - 1
-						inventory[item].attack = drops[item].attack*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
-						let cd = drops[item].cooldown
-						inventory[item].cooldown = cd/(inventory[item].level+1)**1.1 + (cd-cd/2**1.1)
-						inventory[item].owned = 1
+						if(inventory[item].owned > 1) {
+							inventory[item].level += inventory[item].owned - 1
+							inventory[item].attack = drops[item].attack*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
+							let cd = drops[item].cooldown
+							inventory[item].cooldown = cd/(inventory[item].level+1)**1.1 + (cd-cd/2**1.1)
+							inventory[item].owned = 1
+						}
 						pageLoadChecker.inventory = false
 						drawInventory()
 					})
@@ -1103,7 +1107,9 @@ function drawInventory() {
 						} else if (item_stats.type == 'legs') {
 							team[0].legs = ""
 						} else {
-							team[0].rings.splice(team[0].rings.indexOf(item), 1)
+							if(item == "gold ring") {
+								team[0].health /= 2
+							}
 						}
 						pageLoadChecker.inventory = false
 						drawInventory()
@@ -1125,6 +1131,9 @@ function drawInventory() {
 							team[0].legs = item
 						} else {
 							team[0].rings.push(item)
+							if(item == "gold ring") {
+								team[0].health *= 2
+							}
 						}
 						pageLoadChecker.inventory = false
 						drawInventory()
@@ -1136,18 +1145,20 @@ function drawInventory() {
 						var i = armor_tags.indexOf(item)
 						quests_list["misc"]["craft"].progress += inventory[item].owned - 1
 						let craft_bonus = 1.0
-						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress > 10000) {
+						if(!quests_list["misc"]["craft"].completed && quests_list["misc"]["craft"].progress >= 10000) {
 							craft_bonus = 1.1
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 							questStore.quest_points += 1
 						}
-						inventory[item].level += inventory[item].owned - 1
-						if(item == "wooden ring") {
-							inventory[item].range = drops[item].range*(Math.sqrt(inventory[item].level)/4 + 3/4)*craft_bonus
-						} else {
-							inventory[item].defence = drops[item].defence*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
+						if(inventory[item].owned > 1) {
+							inventory[item].level += inventory[item].owned - 1
+							if(item == "wooden ring") {
+								inventory[item].range = drops[item].range*(Math.sqrt(inventory[item].level)/4 + 3/4)*craft_bonus
+							} else {
+								inventory[item].defence = drops[item].defence*(Math.sqrt(inventory[item].level)/4 + 3/4)*(1.4**rebirth["equipment"].level)*craft_bonus
+							}
+							inventory[item].owned = 1
 						}
-						inventory[item].owned = 1
 						pageLoadChecker.inventory = false
 						drawInventory()
 					})
@@ -1833,7 +1844,7 @@ function drawQuests() {
 	if(highestArea >= 6) {
 		ctx.font = "16px Arial"
 		ctx.fillStyle = "black"
-		ctx.fillText("Dragon", 10, 200)
+		ctx.fillText("Dragon", 510, 200)
 		ctx.beginPath()
 		ctx.moveTo(510, 202)
 		ctx.lineTo(745, 202)
@@ -2235,7 +2246,7 @@ var main = function() {
 					}
 					if(deaths.length > quests_list["misc"]["meteor"].progress) {
 						quests_list["misc"]["meteor"].progress = deaths.length
-						if(deaths.length >= 4 && quests_list["misc"]["meteor"].progress < 4) {
+						if(deaths.length >= 4 && !inventory["iron ring"]) {
 							inventory["iron ring"] = Object.assign({}, drops["iron ring"])
 							inventory["iron ring"].owned = 1
 							inventory["iron ring"].level = 1
@@ -2439,7 +2450,7 @@ var main = function() {
 					if(currentArea == highestArea) {
 						if(quests_list["misc"]["noEquipment"].didEquip == false) {
 							quests_list["misc"]["noEquipment"].progress += 1
-							if(quests_list["misc"]["noEquipment"].progress >= 5) {
+							if(quests_list["misc"]["noEquipment"].progress >= 4) {
 								baseBonus = 3
 
 								team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
