@@ -931,10 +931,10 @@ function drawInfo() {
 
 	for(var i=1; i<=highestArea; i++){
 		battle.drawButton("area " + i)
-		ctx.font = "14px Arial"
+		ctx.font = "12px Arial"
 		ctx.fillStyle = "black"
 		if(i == currentArea) {
-			ctx.fillText("Stage: " + currentStage, 20 + 88*(i-1), 70)
+			ctx.fillText("Stage: " + currentStage + "/" + highestStages[i-1], 20 + 88*(i-1), 70)
 		} else {
 			ctx.fillText("Highest: " + highestStages[i-1], 11 + 88*(i-1), 70)
 		}
