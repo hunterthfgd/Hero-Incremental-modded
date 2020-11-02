@@ -1864,7 +1864,7 @@ function drawQuests() {
 	let delta, hr, min, sec
 	if(!quests_list["misc"]["time"].completed) {
 		delta = Math.abs(Date.now()/1000 - quests_list["misc"]["time"].start) * devmode;
-		hr = Math.floor((Date.now()/1000 - quests_list["misc"]["time"].start)/3600)
+		hr = Math.floor((Date.now()/1000 - quests_list["misc"]["time"].start)* devmode)/3600)
 		min = Math.floor((delta - hr*3600)/60)
 		sec = Math.round(delta - hr*3600 - min*60)
 	} else {
