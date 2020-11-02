@@ -2069,14 +2069,14 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("crafteff+")
-		ctx.fillText("Rebirth Points: " + rebirth_points, 10, 150)
-		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + rebirth["hero"].cost, 26, 170)
-		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
-		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
-		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
-		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
-		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + rebirth["resgain"].cost, 26, 270)
-		ctx.fillText("Craft Level (Eff: x" + (Math.round(rebirth["crafteff"].level)*0.1 + 1) + "): " + rebirth["crafteff"].level + " Cost: " + rebirth["crafteff"].cost, 26, 290)
+		ctx.fillText("Rebirth Points: " + formatT("" + rebirth_points), 10, 150)
+		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + formatT("" + rebirth["hero"].cost), 26, 170)
+		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + formatT("" + rebirth["ally"].cost), 26, 190)
+		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + formatT("" + rebirth["equipment"].cost), 26, 210)
+		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + formatT("" + rebirth["resource"].cost), 26, 230)
+		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode*100)/100 + "): " + rebirth["speed"].level + " Cost: " + formatT("" + rebirth["speed"].cost), 26, 250)
+		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + formatT("" + rebirth["resgain"].cost), 26, 270)
+		ctx.fillText("Craft Level (Eff: x" + (Math.round(rebirth["crafteff"].level)*0.1 + 1) + "): " + rebirth["crafteff"].level + " Cost: " + formatT("" + rebirth["crafteff"].cost), 26, 290)
 	}
 	pageLoadChecker.stats = true
 }
