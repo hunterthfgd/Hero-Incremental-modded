@@ -560,6 +560,18 @@ if(savefile != undefined) {
 		}
 	}
 
+	if(quests_list["misc"]["noEquipment"].progress >= 5) {
+		baseBonus = 3
+
+		team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+		team[0].speed = 2 + (1.5 + (baseBonus - 1)**2)*(rebirth["hero"].level)
+	}
+	if(quests_list["misc"]["meteor"].progress >= 4) {
+		inventory["iron ring"] = Object.assign({}, drops["iron ring"])
+		inventory["iron ring"].owned = 1
+		inventory["iron ring"].level = 1
+	}
 	quests_list["misc"]["time"].start += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
 }
 
@@ -726,18 +738,6 @@ function rebirthResets() {
 		inventory["gold ring"] = gr
 	}
 
-	if(quests_list["misc"]["noEquipment"].progress >= 5) {
-		baseBonus = 3
-
-		team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
-		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
-		team[0].speed = (1.5 + (baseBonus - 1)**2)*rebirth["hero"].level
-	}
-	if(quests_list["misc"]["meteor"].progress >= 4) {
-		inventory["iron ring"] = Object.assign({}, drops["iron ring"])
-		inventory["iron ring"].owned = 1
-		inventory["iron ring"].level = 1
-	}
 	team = [{
 		name: "hero",
 		x: 350,
@@ -2353,9 +2353,9 @@ var main = function() {
 							if(quests_list["misc"]["noEquipment"].progress >= 5) {
 								baseBonus = 3
 
-								team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+								team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
 								team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
-								team[0].speed = (1.5 + (baseBonus - 1)**2)*rebirth["hero"].level
+								team[0].speed = 2 + (1.5 + (baseBonus - 1)**2)*(rebirth["hero"].level)
 
 								messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 								questStore.quest_points += 1
