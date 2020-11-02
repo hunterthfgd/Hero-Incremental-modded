@@ -2499,7 +2499,8 @@ var main = function() {
 		for(i=0; i<enemies.length; i++){
 			xdif = enemies[i].x - team[0].x
 			ydif = enemies[i].y - team[0].y
-			dist = Math.sqrt(xdif*xdif + ydif*ydif)
+			let enHP = enemies[i].health / enemies[i].total_health;
+			dist = Math.sqrt(xdif*xdif + ydif*ydif) * Math.sqrt(enHP)
 			if(dist < closest_dist) {
 				closest_dist = dist
 				closest_enemy = i
