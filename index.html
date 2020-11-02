@@ -1863,7 +1863,7 @@ function drawQuests() {
 	ctx.fillText("Reward: Base stats increased dramatically", 20, 510)
 	let delta, hr, min, sec
 	if(!quests_list["misc"]["time"].completed) {
-		delta = Math.abs(Date.now()/1000 - quests_list["misc"]["time"].start)
+		delta = Math.abs(Date.now()/1000 - quests_list["misc"]["time"].start) * devmode;
 		hr = Math.floor((Date.now()/1000 - quests_list["misc"]["time"].start)/3600)
 		min = Math.floor((delta - hr*3600)/60)
 		sec = Math.round(delta - hr*3600 - min*60)
@@ -2057,7 +2057,7 @@ function drawStats() {
 		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
 		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
 		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
-		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode2*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
+		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
 		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + rebirth["resgain"].cost, 26, 270)
 		ctx.fillText("Craft Level (Eff: x" + (Math.round(rebirth["crafteff"].level)*0.1 + 1) + "): " + rebirth["crafteff"].level + " Cost: " + rebirth["crafteff"].cost, 26, 290)
 	}
@@ -2197,7 +2197,7 @@ var main = function() {
 		devmode = 1 * devmode2 * (1 + rebirth["speed"].level * 0.1) * (1 + rebirth["speed"].level * 0.01 * sumAreas);
 
 		if(quests_list["misc"]["time"].completed != true) {
-			if(Date.now()/1000 > quests_list["misc"]["time"].start + 43200) {
+			if(Date.now()/1000 > (quests_list["misc"]["time"].start + 43200)/devmode) {
 				quests_list["misc"]["time"].completed = true
 				devmode2 *= 1.25
 				messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
