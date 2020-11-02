@@ -2173,7 +2173,7 @@ var main = function() {
 		for(var i=1; i<=highestArea; i++){
 			sumAreas += highestStages[i-1];
 		}
-		devmode = 1 * devmode2 * (1 + rebirts["speed"].level * 0.1) * (1 + rebirts["speed"].level * 0.01 * sumAreas);
+		devmode = 1 * devmode2 * (1 + rebirth["speed"].level * 0.1) * (1 + rebirth["speed"].level * 0.01 * sumAreas);
 
 		if(quests_list["misc"]["time"].completed != true) {
 			if(Date.now()/1000 > quests_list["misc"]["time"].start + 43200) {
