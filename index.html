@@ -2,6 +2,9 @@
 <script>
 var devmode = 1
 var devmode2 = 1
+
+var rpBonus = 1;
+
 class Page {
 	constructor() {
 		this.buttons = {}
@@ -2096,7 +2099,12 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("crafteff+")
-		ctx.fillText("Rebirth Points: " + formatT("" + rebirth_points), 10, 150)
+
+		let rpLevels = rebirth["hero"].level + rebirth["ally"].level + rebirth["equipment"].level + rebirth["resource"].level +
+			rebirth["speed"].level + rebirth["resgain"].level + rebirth["crafteff"].level;
+		rpBonus = Math.round(20 + rpLevels)/20;
+
+		ctx.fillText("Rebirth Points: " + formatT("" + rebirth_points) + " (Total levels increase your RP gain from waves by " + Math.round(rpLevels*5) + "%)"  , 10, 150)
 		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + formatT("" + rebirth["hero"].cost), 26, 170)
 		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + formatT("" + rebirth["ally"].cost), 26, 190)
 		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + formatT("" + rebirth["equipment"].cost), 26, 210)
@@ -2456,7 +2464,7 @@ var main = function() {
 				currentStage += 1
 				if (currentStage > highestStages[currentArea - 1]) {
 					highestStages[currentArea - 1] = currentStage
-					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1))
+					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1)*rpBonus)
 
 					let stage_names = Object.keys(quests_list)
 					let current_stage_name = stage_names[currentArea - 1]
@@ -2473,7 +2481,7 @@ var main = function() {
 					}
 				}
 				else {
-					rebirth_points += getVal(0.15*currentArea*(currentStage - 1))
+					rebirth_points += getVal(0.15*currentArea*(currentStage - 1)*rpBonus)
 				}
 				bolts = []
 				if(currentStage == 10) {
