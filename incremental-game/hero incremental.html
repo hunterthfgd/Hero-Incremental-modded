@@ -525,6 +525,7 @@ pageLoadChecker = {
 var enemies = []
 var messages = []
 
+var baseBonus = 1
 var rebirth_points = 0
 var highestStages = [ 1, 0, 0, 0, 0, 0 ]
 
@@ -696,13 +697,13 @@ function rebirthResets() {
 	resources["leaf"] = 0
 
 	let wr, ir, gr
-	if(team[0].rings.includes("wooden ring")) {
+	if(inventory["wooden ring"]) {
 		wr = inventory["wooden ring"]
 	}
-	if(team[0].rings.includes("iron ring")) {
+	if(inventory["iron ring"]) {
 		ir = inventory["iron ring"]
 	}
-	if(team[0].rings.includes("gold ring")) {
+	if(inventory["gold ring"]) {
 		gr = inventory["gold ring"]
 	}
 
@@ -725,6 +726,18 @@ function rebirthResets() {
 		inventory["gold ring"] = gr
 	}
 
+	if(quests_list["misc"]["noEquipment"].progress >= 5) {
+		baseBonus = 3
+
+		team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+		team[0].speed = (1.5 + (baseBonus - 1)**2)*rebirth["hero"].level
+	}
+	if(quests_list["misc"]["meteor"].progress >= 4) {
+		inventory["iron ring"] = Object.assign({}, drops["iron ring"])
+		inventory["iron ring"].owned = 1
+		inventory["iron ring"].level = 1
+	}
 	team = [{
 		name: "hero",
 		x: 350,
@@ -742,7 +755,7 @@ function rebirthResets() {
 		helmet: "",
 		torso: "",
 		legs: "",
-		rings: team[0].rings
+		rings: []
 	}]
 }
 
@@ -783,13 +796,13 @@ function templeResets() {
 	resources["leaf"] = 0
 
 	let wr, ir, gr
-	if(team[0].rings.includes("wooden ring")) {
+	if(inventory["wooden ring"]) {
 		wr = inventory["wooden ring"]
 	}
-	if(team[0].rings.includes("iron ring")) {
+	if(inventory["iron ring"]) {
 		ir = inventory["iron ring"]
 	}
-	if(team[0].rings.includes("gold ring")) {
+	if(inventory["gold ring"]) {
 		gr = inventory["gold ring"]
 	}
 
@@ -829,7 +842,7 @@ function templeResets() {
 		helmet: "",
 		torso: "",
 		legs: "",
-		rings: team[0].rings
+		rings: []
 	}]
 }
 
@@ -1919,10 +1932,10 @@ function drawStats() {
 				}
 
 				team[0].baseAttack += 2*rebirth["hero"].level
-				team[0].attack = team[0].baseAttack + Math.sqrt(team[0].experience)/2
-				team[0].baseDefence += 5*rebirth["hero"].level
-				team[0].defence += team[0].baseDefence + Math.sqrt(team[0].experience)
-				team[0].speed += 1.5
+				team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+				team[0].baseDefence += 15*rebirth["hero"].level
+				team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+				team[0].speed += 1.5 + (baseBonus - 1)**2
 
 				rebirthResets()
 				spawnEnemies()
@@ -1996,7 +2009,7 @@ function drawTemple() {
 			if(templeRewards["ring"] < 2) {
 				inventory["gold ring"] = Object.assign({}, drops["gold ring"])
 				inventory["gold ring"].owned = 1
-				team[0].rings.push("gold ring")
+				inventory["gold ring"].level = 1
 				templeRewards["ring"] = 2
 
 				templeResets()
@@ -2139,6 +2152,7 @@ var main = function() {
 						if(deaths.length >= 4 && quests_list["misc"]["meteor"].progress < 4) {
 							inventory["iron ring"] = Object.assign({}, drops["iron ring"])
 							inventory["iron ring"].owned = 1
+							inventory["iron ring"].level = 1
 							messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 							questStore.quest_points += 1
 						}
@@ -2337,6 +2351,12 @@ var main = function() {
 						if(quests_list["misc"]["noEquipment"].didEquip == false) {
 							quests_list["misc"]["noEquipment"].progress += 1
 							if(quests_list["misc"]["noEquipment"].progress >= 5) {
+								baseBonus = 3
+
+								team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+								team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+								team[0].speed = (1.5 + (baseBonus - 1)**2)*rebirth["hero"].level
+
 								messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 								questStore.quest_points += 1
 							}
