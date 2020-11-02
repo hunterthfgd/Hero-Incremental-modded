@@ -1,7 +1,0 @@
-<a class="date" href="/blogs/posts13/posts13.html">1/6/2020</a><br>
-<div>
-A project I've been collaborating on is using machine learning to try and predict the price of stocks. I set up a neural network that takes dates as a single number and prices, and fits a curve to the known data. Then, it uses its knowledge to predict how a stock will do during a hold period. Depending on the prediction, the program decides whether to buy, sell, or hold. In this case, I picked Zimmer Biomet Holdings (ZBH) and analyzed the data from the past week, month, quarter, and year. Below shows the program's output depicting predicted gains/losses, and also the regression featuring a small prediction.
-</div>
-<div>
-<image style="" src="/images/predictions.PNG"><image style="" src="/images/yearly_prediction.png">
-</div>

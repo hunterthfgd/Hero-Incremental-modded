@@ -1,8 +1,0 @@
-<a class="date" href="/blogs/posts10/posts10.html">12/29/2019</a><br>
-<div>
-As shown below, I created another, albeit simpler, control theory project. This time, my hand was held less and I had to cook up my own differential equation which was much simpler than the prior one. I used two equations to find the equations of motion of a pendulum subject to a radial force at the end
-\[ \alpha = \frac{g}{l}\sin{\theta} \] \[ \tau = \frac{dL}{dt} = I\alpha \] Giving me an equation for the total angular acceleration. As always, I applied linear control theory to this system \[ \dot{x} = Ax + Bu \] where x is a matrix of the degrees of freedom [theta, thetadot], \[ A = \frac{DF}{Dx}|\underline{_x} \] \[ B = \frac{DF}{Du}|\underline{_u} \] <u>x</u> is a matrix of the desired values for each degree of freedom, something like [theta = pi, thetadot=0]. As far as I'm aware, <u>u</u> is the same. The code didn't change much so this project was short and sweet and just an exercise in physics and differential equations.
-</div>
-<div>
-<image src="/images/pendulum2.gif">
-</div>

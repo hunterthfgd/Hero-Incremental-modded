@@ -1,16 +1,0 @@
-<a class="date" href="/blogs/posts8/posts8.html">12/23/2019</a><br>
-<div>
-Today I spent plotting electron density functions of the hydrogen atom. For quantum numbers n, l, and m (n being the number of atoms, l being the azimuthal quantum number, and m the magnetic quantum number), I plotted each state for 1, 2, and 3 atoms. The equation used solves the Schrodinger Equation
-\[ \left(- \frac{\hbar^2}{2 \mu} \nabla^2  - \frac{  e^2}{4 \pi \epsilon_0 r} \right) \psi(r,\theta, \phi) = E \psi(r, \theta, \phi) \]
-<div>With solution</div>
-\[ \psi_{n\ell m}(r,\vartheta,\varphi) = \sqrt {{\left (  \frac{2}{n a^*_0} \right )}^3 \frac{(n-\ell-1)!}{2n(n+\ell)!}} e^{- \rho / 2} \rho^{\ell} L_{n-\ell-1}^{2\ell+1}(\rho) Y_{\ell}^{m}(\vartheta, \varphi ) \]
-In spherical coordinates, I swept through all angles and r values. To avoid overflow errors, I normalized the Bohr radius to 1 and plotted the radius in terms of Bohr radii. I plotted points with an opacity relative to the max value of the wavefunction. This yielded some good looking graphs that match the true orbitals. Below are a few that I captured.
-</div>
-<div>
-<image width="400px" src="/images/electron-density-plots/1,0,0.png">
-<image width="400px" src="/images/electron-density-plots/2,0,0.png">
-<image width="400px" src="/images/electron-density-plots/2,1,0.png">
-<image width="400px" src="/images/electron-density-plots/3,1,0.png">
-<image width="400px" src="/images/electron-density-plots/3,2,0.png">
-<image width="400px" src="/images/electron-density-plots/3,2,1.png">
-</div>

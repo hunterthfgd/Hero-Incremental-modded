@@ -1,13 +1,0 @@
-<a class="date" href="/blogs/posts14/posts14.html">1/9/2020</a><br>
-<div>
-My newest machine learning experience was based on a <a href="https://arxiv.org/abs/1806.07366">fairly recent paper from NIPS2018</a>. In it, a new neural network is described that uses an ordinary differential equation solver as the basis for a new type of layer. This new architecture comes from the fact that Euler's method, an iterative method for solving differential equations, mimics the workings of residual neural nets. The architecture boasts that it may be infinitely layered and uses less memory than conventional networks. Below are some experiments based on the Lotka-Volterra, or predator-prey, model. The first image is the solution to the model using odeint to solve its differential equations in python. The second is an ODE neural network approximating this solution using the author's code.
-</div>
-<div>
-<image width="400px" src="images/lotka-volterra.png"><image width="800px" src="images/lotka-volterra.gif">
-</div>
-<div>
-The author also posted code using PyTorch showing how ODE neural networks could be used to guess digits in the MNIST data set. I adapted this example into a more general framework for numerical inputs and outputs. I used my favorite example of converting polar coordinates to cartesian coordinates to test the network's speed and accuracy. Compared to a 3 layer network, the ODE solution is significantly slower and showed reduced accuracy compared with the network I had built in Keras. One major problem I ran into during testing was the ODE network would always find a local minimum by trying to guess all zeros. It was only fixed by adapting my data set so that only positive values were used as input.
-</div><br>
-<div>
-All in all, this was a challenging project. Switching to PyTorch and implementing custom layers were both new and exciting: it gave me experience with PyTorch's autogradient feature and using an ode solver as the basis for a neural network. This was one of the biggest breakthroughs in machine learning in recent years and implementing the network was a great experience.
-</div>

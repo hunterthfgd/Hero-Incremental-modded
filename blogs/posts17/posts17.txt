@@ -1,8 +1,0 @@
-<a class="date" href="/blogs/posts17/posts17.html">8/19/2020</a><br>
-<div>
-Between this blog post and the last, a lot has happened. I haven't had time to brainstorm as many projects and, lacking direction, haven't blogged as much. This month, though, with life slowing down a bit, I managed to squeeze out two demos. The first one was applying the heat equation to a 1D insulated rod. With one side kept at 100deg and the other side kept at 0deg, and the rod initially being cool, I simulated the heat transfer through the rod. The analogous system is one end of a fork being held to a stove top. The results were neither novel or exciting for me. I did something similar in a course called Applied Numerical Methods. 
-<br>
-The second demo I made is shown below. I used the open source graphics.py software to draw various shapes such as grid lines, arrows, and circles representing point charges. The arrows showed the magnitude and direction of the electric field around the point charges. At first I played around with different fields, inputting various equations for the i_hat and j_hat components. I decided a physical example would be best. Scaling and pointing the arrows was actually not difficult at all. This project was fairly quick and yielded pictures that I am happy with.
-<br>
-<img src="images/charges.png" />
-</div>
