@@ -863,6 +863,12 @@ function templeResets() {
 	}]
 }
 
+
+function formatT(text) {
+	return text.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
 function drawHero(hero) {
 	ctx.fillStyle = "red"
 	ctx.font = "16px Arial"
@@ -944,11 +950,11 @@ function drawInfo() {
 	ctx.font = "14px Arial"
 	ctx.fillText("Health " + Math.ceil(team[0].health), 10, 100)
 	ctx.fillStyle = "blue"
-	ctx.fillText("Crystal " + Math.floor(resources["crystal"]), 10, 120)
+	ctx.fillText("Crystal " + formatT("" + Math.floor(resources["crystal"])), 10, 120)
 	ctx.fillStyle = "brown"
-	ctx.fillText("Stone " + Math.floor(resources["stone"]), 10, 140)
+	ctx.fillText("Stone " + formatT("" + Math.floor(resources["stone"])), 10, 140)
 	ctx.fillStyle = "green"
-	ctx.fillText("Leaf " + Math.floor(resources["leaf"]), 10, 160)
+	ctx.fillText("Leaf " +formatT("" +  Math.floor(resources["leaf"])), 10, 160)
 	battle.drawButton("inventory")
 	battle.drawButton("buildings")
 	battle.drawButton("quests")
