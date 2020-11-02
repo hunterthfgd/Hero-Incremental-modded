@@ -934,6 +934,26 @@ function drawInfo() {
 		battle.addButton("stats", "Stats", "14px Arial", "black", 10, 240, function() {
 			currentPage = "stats"
 		})
+		battle.addButton("mansave", "Manual Save", "14px Arial", "black", 700, 20, function() {
+			quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
+			savefile = {
+				templeRewards: templeRewards,
+				questStore: questStore,
+				currentArea: currentArea,
+				devmode: devmode,
+				devmode2: devmode2,
+				housing: housing,
+				support: support,
+				rebirth_points: rebirth_points,
+				resources: resources,
+				highestStages: highestStages,
+				rebirth: rebirth,
+				quests_list: quests_list,
+				inventory: inventory,
+				team: team
+			}
+			localStorage.setItem("savefile1", JSON.stringify(savefile))
+		})
 	}
 	pageLoadChecker.info = true
 
@@ -959,6 +979,7 @@ function drawInfo() {
 	battle.drawButton("buildings")
 	battle.drawButton("quests")
 	battle.drawButton("stats")
+	battle.drawButton("mansave")
 
 	ctx.font = "10px Arial"
 	if(messages.length > 0) {
