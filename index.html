@@ -2037,7 +2037,7 @@ function drawStats() {
 		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
 		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
 		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
-		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devgain*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
+		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devmode2*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
 		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + rebirth["resgain"].cost, 26, 270)
 	}
 	pageLoadChecker.stats = true
