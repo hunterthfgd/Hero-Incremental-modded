@@ -1,6 +1,7 @@
 <body height="window.height" width="window.width">
 <script>
 var devmode = 1
+var devmode2 = 1
 class Page {
 	constructor() {
 		this.buttons = {}
@@ -450,6 +451,14 @@ var rebirth = {
 	"resource": {
 		level: 0,
 		cost: 250
+	},
+	"speed": {
+		level: 0,
+		cost: 500
+	},
+	"resgain": {
+		level: 0,
+		cost: 1000
 	}
 }
 var rebirth_original = Object.assign({}, rebirth)
@@ -540,6 +549,7 @@ if(savefile != undefined) {
 	questStore = savefile.questStore
 	currentArea = savefile.currentArea
 	devmode = savefile.devmode
+	devmode2 = savefile.devmode2
 	housing = savefile.housing
 	support = savefile.support
 	rebirth_points = savefile.rebirth_points
@@ -661,6 +671,7 @@ function loadArea(area) {
 		questStore: questStore,
 		currentArea: currentArea,
 		devmode: devmode,
+		devmode2: devmode2,
 		housing: housing,
 		support: support,
 		rebirth_points: rebirth_points,
@@ -1650,7 +1661,7 @@ function drawQuests() {
 				quests.removeButton("buy speed")
 				questStore.quest_points -= 10
 				questStore["speed"].bought = true
-				devmode *= 1.1
+				devmode2 *= 1.1
 				pageLoadChecker.quests = false
 				drawQuests()
 			}
@@ -1927,15 +1938,21 @@ function drawStats() {
 				rebirth["hero"].cost = 3*rebirth["hero"].cost
 				rebirth["hero"].level += 1
 
-				if(rebirth["hero"].level >= 3) {
-					rebirth["hero"].cost = "MAX"
-				}
 
-				team[0].baseAttack += 2*rebirth["hero"].level
-				team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
-				team[0].baseDefence += 15*rebirth["hero"].level
-				team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
-				team[0].speed += 1.5 + (baseBonus - 1)**2
+				if(rebirth["hero"].level <= 3) {
+					team[0].baseAttack += 2*rebirth["hero"].level
+					team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+					team[0].baseDefence += 15*rebirth["hero"].level
+					team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+					team[0].speed += 1.5 + (baseBonus - 1)**2
+				}
+				else {
+					team[0].baseAttack += 6 + 1*rebirth["hero"].level
+					team[0].attack = team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+					team[0].baseDefence += 45 + 5*rebirth["hero"].level
+					team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+					team[0].speed += 1.5 + (baseBonus - 1)**2 + 0.05*rebirth["hero"].level
+				}
 
 				rebirthResets()
 				spawnEnemies()
@@ -1987,11 +2004,41 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("resource+")
+		stats.addButton("gspeed+", "+", "16px Arial", "black", 10, 250, function() {
+			if(rebirth_points >= rebirth["speed"].cost) {
+				rebirth_points -= rebirth["speed"].cost
+				rebirth["speed"].cost = 4*rebirth["speed"].cost
+				rebirth["speed"].level += 1
+
+				rebirthResets()
+				spawnEnemies()
+
+				pageLoadChecker.stats = false
+				drawStats()
+			}
+		})
+		stats.drawButton("gspeed+")
+		stats.addButton("resgain+", "+", "16px Arial", "black", 10, 270, function() {
+			if(rebirth_points >= rebirth["resgain"].cost) {
+				rebirth_points -= rebirth["resgain"].cost
+				rebirth["resgain"].cost = 2*rebirth["resgain"].cost
+				rebirth["resgain"].level += 1
+
+				rebirthResets()
+				spawnEnemies()
+
+				pageLoadChecker.stats = false
+				drawStats()
+			}
+		})
+		stats.drawButton("resgain+")
 		ctx.fillText("Rebirth Points: " + rebirth_points, 10, 150)
 		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + rebirth["hero"].cost, 26, 170)
 		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
 		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
 		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
+		ctx.fillText("Game Speed Level (also based by total max waves: x" + Math.round(devgain*100)/100 + "): " + rebirth["speed"].level + " Cost: " + rebirth["speed"].cost, 26, 250)
+		ctx.fillText("Resource Gain Level (+" + (Math.round(rebirth["resgain"].level+1)*10) + "%/wave): " + rebirth["resgain"].level + " Cost: " + rebirth["resgain"].cost, 26, 270)
 	}
 	pageLoadChecker.stats = true
 }
@@ -2079,6 +2126,18 @@ function spawnMeteor(x, y, radius) {
 	ctx.fillText('o', x, y)
 }
 
+
+function getVal(num) {
+	let fullPart = Math.floor(num);
+	let estPart = num%1;
+	let mRand = Math.random();
+	if (mRand < estPart) {
+		fullPart += 1;
+	}
+	return fullPart;
+}
+
+
 var main = function() {
 	function createCanvas() {
 		if(currentPage == "inv"){
@@ -2110,10 +2169,16 @@ var main = function() {
 	}
 
 	function update(time) {
+		let sumAreas = 0;
+		for(var i=1; i<=highestArea; i++){
+			sumAreas += highestStages[i-1];
+		}
+		devmode = 1 * devmode2 * (1 + rebirts["speed"].level * 0.1) * (1 + rebirts["speed"].level * 0.01 * sumAreas);
+
 		if(quests_list["misc"]["time"].completed != true) {
 			if(Date.now()/1000 > quests_list["misc"]["time"].start + 43200) {
 				quests_list["misc"]["time"].completed = true
-				devmode *= 1.25
+				devmode2 *= 1.25
 				messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 				questStore.quest_points += 1
 			}
@@ -2183,11 +2248,11 @@ var main = function() {
 			}
 			let reward = species[enemies[closest_enemy].species].reward
 			if(enemies[closest_enemy].element == "crystal") {
-				resources["crystal"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
+				resources["crystal"] += getVal(templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)*(1 + (rebirth["resgain"].level*0.1 + 0.1)*currentStage))
 			} else if(enemies[closest_enemy].element == "stone") {
-				resources["stone"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
+				resources["stone"] += getVal(templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)*(1 + (rebirth["resgain"].level*0.1 + 0.1)*currentStage))
 			} else if(enemies[closest_enemy].element == "leaf") {
-				resources["leaf"] += templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)
+				resources["leaf"] += getVal(templeRewards["loot"]*mega_multiplier*reward*(2**rebirth["resource"].level)*(1 + (rebirth["resgain"].level*0.1 + 0.1)*currentStage))
 			}
 			if(templeRewards["wisdom"]) {
 				team[0].experience += reward
@@ -2341,6 +2406,9 @@ var main = function() {
 						messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 						questStore.quest_points += 1
 					}
+				}
+				else {
+					rebirth_points += getVal(0.15*currentArea*(currentStage - 1))
 				}
 				bolts = []
 				if(currentStage == 10) {
