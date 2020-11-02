@@ -832,9 +832,9 @@ function templeResets() {
 		experience: 0,
 		health: 100*templeRewards["ring"],
 		baseAttack: 1,
-		attack: 1,
+		attack: (baseBonus - 1)**9 + 1,
 		baseDefence: 10,
-		defence: 10,
+		defence: 10*baseBonus**3,
 		speed: 2,
 		cooldown: Date.now()/1000,
 		tempWeapon: "",
@@ -1191,8 +1191,8 @@ function drawBuildingsScreen() {
 			ctx.fillText(10**(housing["kobold"].owned + 1) + " Stone", 205, 218)
 			if(housing["kobold"].owned > 0) {
 				buildings.addButton("upgrade hut", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 10 * (housing["kobold"].level + 1)**1.5) {
-						resources["stone"] -= 10 * (housing["kobold"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(10 * (housing["kobold"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(10 * (housing["kobold"].level + 1)**1.5)
 						housing["kobold"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1228,8 +1228,8 @@ function drawBuildingsScreen() {
 
 			if(housing["beast"].owned > 0) {
 				buildings.addButton("upgrade den", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 100 * (housing["beast"].level + 1)**1.5) {
-						resources["stone"] -= 100 * (housing["beast"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(100 * (housing["beast"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(100 * (housing["beast"].level + 1)**1.5)
 						housing["beast"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1265,8 +1265,8 @@ function drawBuildingsScreen() {
 
 			if(housing["giant"].owned > 0) {
 				buildings.addButton("upgrade cave", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 1000 * (housing["giant"].level + 1)**1.5) {
-						resources["stone"] -= 1000 * (housing["giant"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(1000 * (housing["giant"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(1000 * (housing["giant"].level + 1)**1.5)
 						housing["giant"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1301,8 +1301,8 @@ function drawBuildingsScreen() {
 			ctx.fillText(10**(housing["golem"].owned + 4) + " Stone", 205, 218)
 			if(housing["golem"].owned > 0) {
 				buildings.addButton("upgrade mountain", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 10000 * (housing["golem"].level + 1)**1.5) {
-						resources["stone"] -= 10000 * (housing["golem"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(10000 * (housing["golem"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(10000 * (housing["golem"].level + 1)**1.5)
 						housing["golem"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1337,8 +1337,8 @@ function drawBuildingsScreen() {
 			ctx.fillText(10**(housing["demon"].owned + 5) + " Stone", 205, 218)
 			if(housing["demon"].owned > 0) {
 				buildings.addButton("upgrade pit", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 100000 * (housing["demon"].level + 1)**1.5) {
-						resources["stone"] -= 100000 * (housing["demon"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(100000 * (housing["demon"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(100000 * (housing["demon"].level + 1)**1.5)
 						housing["demon"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1373,8 +1373,8 @@ function drawBuildingsScreen() {
 			ctx.fillText(10**(housing["dragon"].owned + 6) + " Stone", 205, 218)
 			if(housing["dragon"].owned > 0) {
 				buildings.addButton("upgrade nest", "Upgrade", "14px Arial", "black", 320, 185, function() {
-					if(resources["stone"] >= 1000000 * (housing["dragon"].level + 1)**1.5) {
-						resources["stone"] -= 1000000 * (housing["dragon"].level + 1)**1.5
+					if(resources["stone"] >= Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5)) {
+						resources["stone"] -= Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5)
 						housing["dragon"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1423,7 +1423,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade meteor")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(250 * 2**support["meteor"].level) + " Crystal", 350, 218)
+				ctx.fillText(250 * 2**support["meteor"].level + " Crystal", 350, 218)
 			}
 		} else if(building == "totem") {
 			ctx.strokeRect(200, 50, 350, 200)
@@ -1464,7 +1464,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade totem")
 				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(400 * 2**support["totem"].level) + " Leaf", 350, 218)
+				ctx.fillText(400 * 2**support["totem"].level + " Leaf", 350, 218)
 			}
 		}
 	}
