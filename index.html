@@ -1983,7 +1983,7 @@ function drawStats() {
 		}
 
 		stats.addButton("hero+", "+", "16px Arial", "black", 10, 170, function() {
-			if(rebirth_points >= rebirth["hero"].cost && rebirth["hero"].level < 3) {
+			if(rebirth_points >= rebirth["hero"].cost) {
 				rebirth_points -= rebirth["hero"].cost
 				rebirth["hero"].cost = 3*rebirth["hero"].cost
 				rebirth["hero"].level += 1
