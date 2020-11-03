@@ -970,6 +970,7 @@ function drawInfo() {
 		battle.addButton("mansave", "Manual Save", "14px Arial", "black", 618, 20, function() {
 			quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
 			savefile = {
+				currentStage: currentStage,
 				templeRewards: templeRewards,
 				questStore: questStore,
 				currentArea: currentArea,
