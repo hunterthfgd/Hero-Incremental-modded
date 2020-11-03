@@ -2625,6 +2625,9 @@ var main = function() {
 				currentStage += 1
 				if (currentStage > highestStages[currentArea - 1]) {
 					highestStages[currentArea - 1] = currentStage
+					let rpLevels = rebirth["hero"].level + rebirth["ally"].level + rebirth["equipment"].level + rebirth["resource"].level +
+						rebirth["speed"].level + rebirth["resgain"].level + rebirth["crafteff"].level;
+					rpBonus = Math.round(20 + rpLevels)/20;
 					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1)*rpBonus)
 
 					let stage_names = Object.keys(quests_list)
@@ -2642,6 +2645,9 @@ var main = function() {
 					}
 				}
 				else {
+					let rpLevels = rebirth["hero"].level + rebirth["ally"].level + rebirth["equipment"].level + rebirth["resource"].level +
+						rebirth["speed"].level + rebirth["resgain"].level + rebirth["crafteff"].level;
+					rpBonus = Math.round(20 + rpLevels)/20;
 					rebirth_points += getVal(0.15*currentArea*(currentStage - 1)*rpBonus)
 				}
 				bolts = []
